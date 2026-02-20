@@ -353,7 +353,8 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             </div>
 
             {/* Stats */}
-            <div className="nes-container is-rounded w-full" style={{ padding: '12px' }}>
+            <div className="nes-container is-dark is-rounded with-title w-full" style={{ padding: '12px' }}>
+              <p className="title" style={{ fontSize: 'var(--text-xs)', backgroundColor: 'var(--card)' }}>📊 Stats</p>
               <div className="flex flex-col gap-3">
                 <StatBar label="Felicidad" emoji="💚" value={tacomon.happiness} maxValue={100} color="var(--taco-green)" bgColor="var(--taco-green-bg)" />
                 <StatBar label="Energía" emoji="⚡" value={tacomon.energy} maxValue={100} color="var(--taco-gold)" bgColor="var(--taco-gold-bg)" />
@@ -364,26 +365,60 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             {/* Action buttons */}
             <div className="grid grid-cols-2 gap-2 w-full relative">
               <InsufficientTooltip show={showInsufficientTip} />
-              <button
-                onClick={() => handleAction('alimentar')}
-                disabled={cooldowns.alimentar || actionBlocked.alimentar}
-                className={`nes-btn ${cooldowns.alimentar || actionBlocked.alimentar ? 'is-disabled' : 'is-error'}`}
-                style={{ fontSize: 'var(--text-xs)', padding: '10px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-              >
-                <span style={{ fontSize: '1.2em' }}>🍎</span>
-                <span>Alimentar</span>
-                <span style={{ fontSize: '0.8em', opacity: 0.7 }}>(10 🍅)</span>
-              </button>
-              <button
-                onClick={() => handleAction('jugar')}
-                disabled={cooldowns.jugar || actionBlocked.jugar}
-                className={`nes-btn ${cooldowns.jugar || actionBlocked.jugar ? 'is-disabled' : 'is-warning'}`}
-                style={{ fontSize: 'var(--text-xs)', padding: '10px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-              >
-                <span style={{ fontSize: '1.2em' }}>⚡</span>
-                <span>Jugar</span>
-                <span style={{ fontSize: '0.8em', opacity: 0.7 }}>(10 🍅)</span>
-              </button>
+              {(() => {
+                const feedDisabled = cooldowns.alimentar || actionBlocked.alimentar || balance < 10
+                const feedReason = cooldowns.alimentar ? `⏳ ${formatTime(timeLeft.alimentar)}` : actionBlocked.alimentar ? '🚫 30s' : balance < 10 ? '🍅 Insuf.' : null
+                return (
+                  <button
+                    onClick={() => handleAction('alimentar')}
+                    disabled={feedDisabled}
+                    className={`nes-btn ${feedDisabled ? 'is-disabled' : 'is-success'}`}
+                    style={{
+                      fontSize: 'var(--text-xs)',
+                      padding: '10px 6px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '4px',
+                      opacity: feedDisabled ? 0.45 : 1,
+                      cursor: feedDisabled ? 'not-allowed' : 'pointer',
+                      boxShadow: feedDisabled ? 'none' : '0 0 12px rgba(76, 175, 80, 0.5), 0 4px 8px rgba(0,0,0,0.3)',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <span style={{ fontSize: '1.2em' }}>🍎</span>
+                    <span>Alimentar</span>
+                    <span style={{ fontSize: '0.8em', opacity: 0.7 }}>{feedReason || '10 🍅'}</span>
+                  </button>
+                )
+              })()}
+              {(() => {
+                const playDisabled = cooldowns.jugar || actionBlocked.jugar || balance < 10
+                const playReason = cooldowns.jugar ? `⏳ ${formatTime(timeLeft.jugar)}` : actionBlocked.jugar ? '🚫 30s' : balance < 10 ? '🍅 Insuf.' : null
+                return (
+                  <button
+                    onClick={() => handleAction('jugar')}
+                    disabled={playDisabled}
+                    className={`nes-btn ${playDisabled ? 'is-disabled' : 'is-primary'}`}
+                    style={{
+                      fontSize: 'var(--text-xs)',
+                      padding: '10px 6px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '4px',
+                      opacity: playDisabled ? 0.45 : 1,
+                      cursor: playDisabled ? 'not-allowed' : 'pointer',
+                      boxShadow: playDisabled ? 'none' : '0 0 12px rgba(33, 150, 243, 0.5), 0 4px 8px rgba(0,0,0,0.3)',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <span style={{ fontSize: '1.2em' }}>⚡</span>
+                    <span>Jugar</span>
+                    <span style={{ fontSize: '0.8em', opacity: 0.7 }}>{playReason || '10 🍅'}</span>
+                  </button>
+                )
+              })()}
             </div>
 
             {/* Feedback */}
