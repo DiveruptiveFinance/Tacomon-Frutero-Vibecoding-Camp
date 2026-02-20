@@ -10,6 +10,7 @@ import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
 import { ChatSection } from './chat-section'
 import { TacodexModal } from './tacodex-modal'
+import { TrainingView, TrainingBadge } from './training-view'
 import { useSalsa } from '@/hooks/use-salsa'
 import type { SalsaHistoryEntry } from '@/hooks/use-salsa'
 import { usePrivy } from '@privy-io/react-auth'
@@ -171,6 +172,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
   const [showInsufficientTip, setShowInsufficientTip] = useState(false)
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null)
   const [showTacodex, setShowTacodex] = useState(false)
+  const [showTraining, setShowTraining] = useState(false)
 
   const { spawnHearts, HeartsLayer } = useFloatingHearts()
   const { spawn: spawnSalsa, Layer: SalsaLayer } = useSalsaFloats()
@@ -308,6 +310,9 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               Iniciar Sesión
             </button>
           )}
+          <button onClick={() => setShowTraining(true)} className="nes-btn is-warning" style={{ fontSize: '10px', padding: '2px 8px' }}>
+            🎓 Entrenar
+          </button>
           <ThemeToggle />
           <button onClick={handleReset} className="nes-btn" style={{ fontSize: '10px', padding: '2px 8px' }}>
             Reiniciar
@@ -330,10 +335,21 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               <span style={{ fontSize: 'var(--text-xs)', color: 'var(--taco-pink)' }}>{specialtyConfig.label}</span>
             </div>
           )}
+          <div className="flex items-center justify-center mt-1">
+            <TrainingBadge />
+          </div>
         </div>
 
+        {/* Training View */}
+        {showTraining && (
+          <TrainingView
+            onUpdateStats={onUpdateStats}
+            onBack={() => setShowTraining(false)}
+          />
+        )}
+
         {/* 2-column layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:items-stretch">
+        {!showTraining && <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:items-stretch">
           {/* LEFT: Sprite + Stats + Actions */}
           <div className="flex flex-col items-center gap-4">
             {/* Sprite */}
@@ -474,7 +490,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               Creado el: {new Date(tacomon.createdAt).toLocaleDateString('es-MX')}
             </p>
           </div>
-        </div>
+        </div>}
       </div>
 
       {/* Quiz Modal */}
