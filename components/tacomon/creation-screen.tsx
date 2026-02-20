@@ -9,7 +9,6 @@ import {
   SPECIALTIES_BY_TYPE,
   SPECIALTY_CONFIG,
 } from '@/lib/tacomon-types'
-import { HatchingScene } from './hatching-scene'
 import { ThemeToggle } from './theme-toggle'
 import { TacoSprite } from './taco-sprite'
 
@@ -21,9 +20,6 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
   const [name, setName] = useState('')
   const [selectedType, setSelectedType] = useState<TacoType | null>(null)
   const [selectedSpecialty, setSelectedSpecialty] = useState<Specialty | null>(null)
-  const [isHatching, setIsHatching] = useState(false)
-  const [createdData, setCreatedData] = useState<TacomonData | null>(null)
-
   const isNameValid = name.trim().length >= 2 && name.trim().length <= 10
   const canCreate = isNameValid && selectedType !== null && selectedSpecialty !== null
 
@@ -55,19 +51,8 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
       lastPlayed: null,
     }
 
-    setCreatedData(data)
-    setIsHatching(true)
-  }, [canCreate, name, selectedType, selectedSpecialty])
-
-  const handleHatchComplete = useCallback(() => {
-    if (createdData) {
-      onCreated(createdData)
-    }
-  }, [createdData, onCreated])
-
-  if (isHatching && createdData) {
-    return <HatchingScene tacomon={createdData} onComplete={handleHatchComplete} />
-  }
+    onCreated(data)
+  }, [canCreate, name, selectedType, selectedSpecialty, onCreated])
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-6 md:py-10"
