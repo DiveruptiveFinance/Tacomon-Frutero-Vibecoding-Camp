@@ -57,12 +57,9 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
     >
-      <div
-        className="nes-container is-rounded w-full max-w-md animate-slide-up"
-        style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
-      >
+      <div className="modern-card w-full max-w-md animate-slide-up">
         {/* Header */}
         <div className="text-center mb-4">
           <span className="text-2xl">{config.emoji}</span>
@@ -73,10 +70,10 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
 
         {/* Question */}
         <div
-          className="nes-container is-rounded mb-4"
-          style={{ backgroundColor: config.bgColor, color: 'var(--foreground)' }}
+          className="mb-4 p-3"
+          style={{ backgroundColor: config.bgColor, borderRadius: '12px' }}
         >
-          <p className="leading-relaxed" style={{ fontSize: 'var(--text-xs)' }}>
+          <p className="leading-relaxed" style={{ fontSize: 'var(--text-xs)', color: 'var(--foreground)' }}>
             {question.question}
           </p>
         </div>
@@ -88,8 +85,8 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
               cursor: showResult ? 'default' : 'pointer',
               backgroundColor: 'var(--secondary)',
               color: 'var(--foreground)',
-              border: '3px solid var(--border)',
-              borderRadius: '8px',
+              border: '2px solid var(--border)',
+              borderRadius: '12px',
             }
 
             if (showResult) {
@@ -98,14 +95,12 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
                   ...btnStyle,
                   backgroundColor: 'var(--taco-green-bg)',
                   borderColor: 'var(--taco-green)',
-                  color: 'var(--foreground)',
                 }
               } else if (index === selectedAnswer && !isCorrect) {
                 btnStyle = {
                   ...btnStyle,
                   backgroundColor: 'var(--taco-red-bg)',
                   borderColor: 'var(--taco-red)',
-                  color: 'var(--foreground)',
                 }
               }
             } else if (index === selectedAnswer) {
@@ -153,11 +148,11 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
           </div>
         )}
 
-        {/* Close button (only if not answered yet) */}
+        {/* Close button */}
         {!showResult && (
           <button
             onClick={onClose}
-            className="nes-btn w-full mt-2"
+            className="btn btn-ghost w-full mt-2"
             style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
           >
             {'Cancelar'}

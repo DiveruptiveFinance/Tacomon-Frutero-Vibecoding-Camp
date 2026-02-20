@@ -35,7 +35,6 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const floatIdRef = useRef(0)
 
-  // Load from localStorage
   useEffect(() => {
     try {
       const savedMessages = localStorage.getItem(CHAT_STORAGE_KEY)
@@ -45,21 +44,18 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
     } catch { /* ignore */ }
   }, [])
 
-  // Save messages
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-MAX_MESSAGES)))
     }
   }, [messages])
 
-  // Save memories
   useEffect(() => {
     if (memories.length > 0) {
       localStorage.setItem(MEMORIES_STORAGE_KEY, JSON.stringify(memories))
     }
   }, [memories])
 
-  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -88,7 +84,6 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
     setInput('')
     setIsTyping(true)
 
-    // Stats: +5 happiness, -3 energy
     onUpdateStats('happiness', 5)
     addFloatingText('+5 💚')
     
@@ -138,7 +133,7 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
       if (data.newMemories?.length > 0) {
         setMemories(prev => {
           const updated = [...prev, ...data.newMemories]
-          return updated.slice(-20) // keep last 20 memories
+          return updated.slice(-20)
         })
       }
     } catch {
@@ -182,27 +177,17 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
       {/* Toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="nes-btn is-primary w-full mb-2"
+        className="btn btn-primary w-full mb-2"
         style={{ fontSize: 'var(--text-xs)', cursor: 'pointer' }}
       >
         💬 {isOpen ? 'Cerrar Chat' : 'Chatear con ' + tacomon.name}
-        {memories.length > 0 && (
-          <span className="ml-2">🧠 {memories.length} memorias</span>
-        )}
       </button>
 
       {isOpen && (
         <div
-          className="nes-container is-rounded"
-          style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)', padding: '8px' }}
+          className="modern-card"
+          style={{ padding: '12px' }}
         >
-          {/* Memory indicator */}
-          {memories.length > 0 && (
-            <div className="text-center mb-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-              🧠 {memories.length} memorias guardadas
-            </div>
-          )}
-
           {/* Messages area */}
           <div
             ref={scrollRef}
@@ -224,7 +209,7 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
                   style={{
                     backgroundColor: msg.role === 'user' ? 'var(--taco-blue)' : 'var(--taco-green)',
                     color: '#fff',
-                    borderRadius: '12px',
+                    borderRadius: '16px',
                     fontSize: 'var(--text-xs)',
                     lineHeight: 1.4,
                     ...(msg.role === 'user'
@@ -243,7 +228,7 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
                   style={{
                     backgroundColor: 'var(--taco-green)',
                     color: '#fff',
-                    borderRadius: '12px',
+                    borderRadius: '16px',
                     fontSize: 'var(--text-xs)',
                   }}
                 >
@@ -254,27 +239,22 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
           </div>
 
           {/* Input area */}
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={`Habla con ${tacomon.name}...`}
-              className="nes-input flex-1"
-              style={{
-                fontSize: 'var(--text-xs)',
-                padding: '4px 8px',
-                backgroundColor: 'var(--input)',
-                color: 'var(--foreground)',
-              }}
+              className="modern-input flex-1"
+              style={{ fontSize: 'var(--text-xs)', padding: '8px 12px' }}
               disabled={isTyping}
             />
             <button
               onClick={sendMessage}
               disabled={isTyping || !input.trim()}
-              className={`nes-btn ${isTyping || !input.trim() ? 'is-disabled' : 'is-success'}`}
-              style={{ fontSize: 'var(--text-xs)', cursor: isTyping ? 'not-allowed' : 'pointer', padding: '4px 8px' }}
+              className={`btn ${isTyping || !input.trim() ? 'btn-disabled' : 'btn-success'}`}
+              style={{ fontSize: 'var(--text-xs)', cursor: isTyping ? 'not-allowed' : 'pointer', padding: '8px 12px' }}
             >
               📤
             </button>

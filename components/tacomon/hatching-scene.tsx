@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { TacomonData, TACO_CONFIG } from '@/lib/tacomon-types'
+import { TacoSprite } from './taco-sprite'
 
 interface HatchingSceneProps {
   tacomon: TacomonData
@@ -20,12 +21,9 @@ export function HatchingScene({ tacomon, onComplete }: HatchingSceneProps) {
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = []
 
-    // Phase 1: Egg shakes for 2.5s
     timers.push(setTimeout(() => setPhase('cracking'), 2500))
 
-    // Phase 2: Egg cracks for 1.5s
     timers.push(setTimeout(() => {
-      // Generate sparkles
       const newSparkles = Array.from({ length: 12 }, (_, i) => ({
         id: i,
         x: Math.random() * 200 - 100,
@@ -35,7 +33,6 @@ export function HatchingScene({ tacomon, onComplete }: HatchingSceneProps) {
       setPhase('hatched')
     }, 4000))
 
-    // Phase 3: Show taco for 1s then message
     timers.push(setTimeout(() => setPhase('message'), 5500))
 
     return () => timers.forEach(clearTimeout)
@@ -79,12 +76,11 @@ export function HatchingScene({ tacomon, onComplete }: HatchingSceneProps) {
             <p className="text-center mt-4" style={{ fontSize: 'var(--text-sm)', color: 'var(--foreground)' }}>
               {'Algo se mueve dentro...'}
             </p>
-            {/* Dots animation */}
             <div className="flex justify-center gap-2 mt-2">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="w-2 h-2"
+                  className="w-2 h-2 rounded-full"
                   style={{
                     backgroundColor: config.color,
                     animation: `taco-bounce 1s ease-in-out infinite`,
@@ -113,24 +109,11 @@ export function HatchingScene({ tacomon, onComplete }: HatchingSceneProps) {
         {(phase === 'hatched' || phase === 'message') && (
           <div className="flex flex-col items-center animate-slide-up">
             <div className="animate-taco-bounce">
-              <div className="relative w-36 h-36 md:w-52 md:h-52">
-                <Image
-                  src={config.sprite}
-                  alt={`Tacomon ${tacomon.name}`}
-                  fill
-                  className="pixel-sprite object-contain"
-                  priority
-                />
-              </div>
+              <TacoSprite specialty={tacomon.specialty} size="lg" />
             </div>
 
-            <span className="text-3xl mt-2">{config.emoji}</span>
-
             {phase === 'message' && (
-              <div
-                className="nes-container is-rounded mt-6 text-center max-w-sm animate-slide-up"
-                style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
-              >
+              <div className="modern-card mt-6 text-center max-w-sm animate-slide-up">
                 <p className="leading-relaxed" style={{ fontSize: 'var(--text-sm)' }}>
                   <span style={{ color: config.color, fontSize: 'var(--text-base)' }}>
                     {tacomon.name}
@@ -143,7 +126,7 @@ export function HatchingScene({ tacomon, onComplete }: HatchingSceneProps) {
 
                 <button
                   onClick={onComplete}
-                  className="nes-btn is-primary mt-4"
+                  className="btn btn-primary mt-4"
                   style={{ cursor: 'pointer', fontSize: 'var(--text-sm)' }}
                 >
                   {'Continuar'}

@@ -1,16 +1,15 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import 'nes.css/css/nes.min.css';
 
 @custom-variant dark (&:is(.dark *));
 
 /* Fluid typography scale */
 :root {
-  --text-xs: clamp(0.5rem, 1.5vw, 0.65rem);
-  --text-sm: clamp(0.6rem, 2vw, 0.8rem);
-  --text-base: clamp(0.7rem, 2.5vw, 1rem);
-  --text-lg: clamp(0.85rem, 3vw, 1.2rem);
-  --text-xl: clamp(1rem, 3.5vw, 1.5rem);
+  --text-xs: clamp(0.65rem, 1.5vw, 0.75rem);
+  --text-sm: clamp(0.75rem, 2vw, 0.875rem);
+  --text-base: clamp(0.875rem, 2.5vw, 1rem);
+  --text-lg: clamp(1rem, 3vw, 1.25rem);
+  --text-xl: clamp(1.125rem, 3.5vw, 1.5rem);
 
   --background: #fdf6e3;
   --foreground: #2d1b00;
@@ -28,7 +27,7 @@
   --accent-foreground: #fdf6e3;
   --destructive: #c62828;
   --destructive-foreground: #fdf6e3;
-  --border: #2d1b00;
+  --border: #e0d0b8;
   --input: #f5e6c8;
   --ring: #d4520a;
   --chart-1: #2e7d32;
@@ -36,7 +35,7 @@
   --chart-3: #c62828;
   --chart-4: #1565c0;
   --chart-5: #d4520a;
-  --radius: 0px;
+  --radius: 12px;
 
   --taco-green: #4caf50;
   --taco-green-bg: #e8f5e9;
@@ -47,13 +46,11 @@
   --taco-gold: #f9a825;
   --taco-gold-bg: #fff8e1;
 
-  /* Gender colors */
   --gender-male: #4A90D9;
-  --gender-male-bg: #1a2a4a;
+  --gender-male-bg: #e3f0fc;
   --gender-female: #D94A8A;
-  --gender-female-bg: #4a1a2a;
+  --gender-female-bg: #fce3ef;
 
-  /* Taco accent colors */
   --taco-pink: #FF69B4;
   --taco-pink-bg: #fff0f5;
   --taco-verde: #4CAF50;
@@ -77,7 +74,7 @@
   --accent-foreground: #1a1207;
   --destructive: #ef5350;
   --destructive-foreground: #1a1207;
-  --border: #7a6140;
+  --border: #5a4a30;
   --input: #3d2a10;
   --ring: #e8762e;
 
@@ -90,10 +87,13 @@
   --taco-pink-bg: #3a1b2a;
   --taco-verde: #4CAF50;
   --taco-amarillo: #FFD700;
+
+  --gender-male-bg: #1a2a4a;
+  --gender-female-bg: #4a1a2a;
 }
 
 @theme inline {
-  --font-sans: var(--font-press-start), 'Press Start 2P', monospace;
+  --font-sans: var(--font-press-start), 'Press Start 2P', system-ui, sans-serif;
   --font-mono: var(--font-press-start), 'Press Start 2P', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -119,10 +119,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius));
-  --radius-md: calc(var(--radius));
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius));
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.5);
+  --radius-xl: calc(var(--radius) * 2);
   --color-taco-green: var(--taco-green);
   --color-taco-green-bg: var(--taco-green-bg);
   --color-taco-blue: var(--taco-blue);
@@ -140,86 +140,143 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-press-start), 'Press Start 2P', monospace;
-    image-rendering: pixelated;
+    font-family: var(--font-press-start), 'Press Start 2P', system-ui, sans-serif;
   }
 }
 
-/* NES.css overrides for our theme */
-.nes-container {
-  background-color: var(--card) !important;
-  color: var(--card-foreground) !important;
-  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
+/* ========== Modern UI Components ========== */
+
+/* Card / Container */
+.modern-card {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
-.nes-container.is-dark {
-  background-color: var(--foreground) !important;
-  color: var(--background) !important;
+.dark .modern-card {
+  box-shadow: none;
+  border-color: var(--border);
 }
 
-.nes-container.with-title > .title {
-  background-color: var(--card) !important;
-  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
 }
 
-.nes-btn {
-  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.nes-btn.is-primary {
-  background-color: var(--primary) !important;
-  color: var(--primary-foreground) !important;
+.btn:active {
+  transform: translateY(0);
 }
 
-.nes-btn.is-success {
-  background-color: var(--accent) !important;
-  color: var(--accent-foreground) !important;
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
-.nes-btn.is-warning {
-  background-color: var(--taco-gold) !important;
-  color: var(--foreground) !important;
+.btn-success {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
 }
 
-.nes-btn.is-error {
-  background-color: var(--destructive) !important;
-  color: var(--destructive-foreground) !important;
+.btn-warning {
+  background-color: var(--taco-gold);
+  color: var(--foreground);
 }
 
-.nes-btn.is-disabled,
-.nes-btn[disabled] {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
+.btn-danger {
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
 }
 
-.nes-input,
-.nes-textarea {
-  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
-  background-color: var(--input) !important;
-  color: var(--foreground) !important;
+.btn-ghost {
+  background-color: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border);
 }
 
-.nes-progress {
-  height: 24px !important;
+.btn-ghost:hover {
+  background-color: var(--secondary);
 }
 
-/* Pixel art rendering for sprites */
-.pixel-sprite {
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
+.btn:disabled, .btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-/* Bounce animation for sprites */
+/* Modern Input */
+.modern-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background-color: var(--input);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.modern-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(212, 82, 10, 0.15);
+}
+
+.modern-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* ========== Animations ========== */
+
 @keyframes taco-bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
+}
+
+@keyframes tacoFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-6px) rotate(-3deg); }
+  75% { transform: translateY(-6px) rotate(3deg); }
 }
 
 @keyframes taco-idle {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   25% { transform: translateY(-4px) rotate(-2deg); }
   75% { transform: translateY(-4px) rotate(2deg); }
+}
+
+@keyframes floatAccessory {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-12px) rotate(15deg); opacity: 0.6; }
+}
+
+@keyframes particleOrbit {
+  0%, 100% { opacity: 0.6; transform: rotate(var(--angle, 0deg)) translateX(50px) scale(0.8); }
+  50% { opacity: 1; transform: rotate(calc(var(--angle, 0deg) + 30deg)) translateX(55px) scale(1.1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.1); }
 }
 
 @keyframes egg-shake {
@@ -258,181 +315,6 @@
   100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
 }
 
-.animate-taco-bounce {
-  animation: taco-bounce 1s ease-in-out infinite;
-}
-
-.animate-taco-idle {
-  animation: taco-idle 3s ease-in-out infinite;
-}
-
-.animate-egg-shake {
-  animation: egg-shake 1.5s ease-in-out infinite;
-}
-
-.animate-egg-crack {
-  animation: egg-crack 1s ease-in-out forwards;
-}
-
-.animate-sparkle {
-  animation: sparkle 0.8s ease-in-out forwards;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out forwards;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-float-hearts {
-  animation: float-hearts 1.5s ease-out forwards;
-}
-
-/* Hover micro-interactions */
-.pet-area {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.pet-area:hover {
-  transform: scale(1.05);
-}
-
-.pet-area:active {
-  transform: scale(0.95);
-}
-
-/* Stat bar custom styles */
-.stat-bar-green .nes-progress {
-  --progress-color: var(--taco-green);
-}
-
-.stat-bar-yellow .nes-progress {
-  --progress-color: var(--taco-gold);
-}
-
-.stat-bar-red .nes-progress {
-  --progress-color: var(--taco-red);
-}
-
-/* Type selection cards */
-.type-card {
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 4px solid transparent;
-}
-
-.type-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 0 var(--foreground);
-}
-
-.type-card.selected {
-  border-color: var(--primary);
-  transform: translateY(-4px);
-  box-shadow: 0 4px 0 var(--primary);
-}
-
-/* Smooth transitions for all interactive elements */
-button, .nes-btn, input, .type-card {
-  transition: all 0.2s ease;
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--secondary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border: 2px solid var(--foreground);
-}
-
-/* Gender selection */
-.gender-option {
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 3px solid transparent;
-  padding: 8px 16px;
-  border-radius: 8px !important;
-}
-
-.gender-option:hover {
-  transform: scale(1.05);
-}
-
-.gender-option.selected {
-  border-color: var(--primary);
-  background-color: var(--secondary);
-}
-
-.gender-option.selected-male {
-  border-color: var(--gender-male) !important;
-  background-color: var(--gender-male-bg) !important;
-  box-shadow: 0 0 8px rgba(74, 144, 217, 0.3);
-}
-
-.gender-option.selected-female {
-  border-color: var(--gender-female) !important;
-  background-color: var(--gender-female-bg) !important;
-  box-shadow: 0 0 8px rgba(217, 74, 138, 0.3);
-}
-
-/* Border smoothing for NES containers */
-.nes-container {
-  border-radius: 8px !important;
-}
-
-.nes-container.is-rounded {
-  border-radius: 8px !important;
-}
-
-/* Type selection cards smooth borders */
-.type-card.nes-container {
-  border-radius: 8px !important;
-}
-
-/* Dark mode NES overrides */
-.dark .nes-container.with-title > .title {
-  background-color: var(--card) !important;
-  color: var(--foreground) !important;
-}
-
-.dark .nes-input,
-.dark .nes-textarea {
-  background-color: var(--input) !important;
-  color: var(--foreground) !important;
-}
-
-/* Cooldown timer */
-.cooldown-timer {
-  font-size: var(--text-xs);
-  color: var(--muted-foreground);
-}
-
-/* Theme toggle */
-.theme-toggle {
-  cursor: pointer;
-  background: transparent;
-  border: 2px solid var(--muted-foreground);
-  color: var(--foreground);
-  padding: 4px 8px;
-  font-size: var(--text-xs);
-  transition: all 0.2s ease;
-  border-radius: 4px;
-}
-
-.theme-toggle:hover {
-  opacity: 0.7;
-}
-
-/* Chat animations */
 @keyframes bounce-in {
   0% { transform: scale(0.3); opacity: 0; }
   50% { transform: scale(1.05); }
@@ -445,13 +327,123 @@ button, .nes-btn, input, .type-card {
   100% { opacity: 0; transform: translateY(-40px); }
 }
 
-.animate-bounce-in {
-  animation: bounce-in 0.4s ease-out;
+@keyframes typing-blink {
+  0%, 20% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
 }
 
-.animate-float-up {
-  animation: float-up 1.5s ease-out forwards;
+.animate-taco-bounce { animation: taco-bounce 1s ease-in-out infinite; }
+.animate-taco-idle { animation: taco-idle 3s ease-in-out infinite; }
+.animate-egg-shake { animation: egg-shake 1.5s ease-in-out infinite; }
+.animate-egg-crack { animation: egg-crack 1s ease-in-out forwards; }
+.animate-sparkle { animation: sparkle 0.8s ease-in-out forwards; }
+.animate-slide-up { animation: slide-up 0.5s ease-out forwards; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-float-hearts { animation: float-hearts 1.5s ease-out forwards; }
+.animate-bounce-in { animation: bounce-in 0.4s ease-out; }
+.animate-float-up { animation: float-up 1.5s ease-out forwards; }
+
+/* ========== Interactive Elements ========== */
+
+.pet-area {
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
+.pet-area:hover { transform: scale(1.05); }
+.pet-area:active { transform: scale(0.95); }
+
+/* Stat bar */
+.stat-bar-track {
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.7s ease-out;
+}
+
+/* Type cards */
+.type-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background-color: var(--card);
+  padding: 12px;
+}
+
+.type-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.type-card.selected {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* Gender cards */
+.gender-option {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: var(--card);
+}
+
+.gender-option:hover { transform: scale(1.05); }
+
+.gender-option.selected-male {
+  border-color: var(--gender-male) !important;
+  background-color: var(--gender-male-bg) !important;
+  box-shadow: 0 0 12px rgba(74, 144, 217, 0.25);
+}
+
+.gender-option.selected-female {
+  border-color: var(--gender-female) !important;
+  background-color: var(--gender-female-bg) !important;
+  box-shadow: 0 0 12px rgba(217, 74, 138, 0.25);
+}
+
+/* Smooth transitions */
+button, input, .type-card {
+  transition: all 0.2s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 3px;
+}
+
+/* Cooldown timer */
+.cooldown-timer {
+  font-size: var(--text-xs);
+  color: var(--muted-foreground);
+}
+
+/* Theme toggle */
+.theme-toggle {
+  cursor: pointer;
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  padding: 6px 10px;
+  font-size: var(--text-xs);
+  transition: all 0.2s ease;
+  border-radius: 10px;
+}
+.theme-toggle:hover { opacity: 0.7; }
 
 /* Typing dots */
 .typing-dots span {
@@ -462,47 +454,9 @@ button, .nes-btn, input, .type-card {
 .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
 .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
-@keyframes typing-blink {
-  0%, 20% { opacity: 0.2; }
-  50% { opacity: 1; }
-  100% { opacity: 0.2; }
-}
-
-/* Wood texture container */
-.wood-container {
-  background:
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 3px,
-      rgba(139, 90, 43, 0.06) 3px,
-      rgba(139, 90, 43, 0.06) 6px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 20px,
-      rgba(139, 90, 43, 0.04) 20px,
-      rgba(139, 90, 43, 0.04) 22px
-    ),
-    var(--card) !important;
-}
-
-.dark .wood-container {
-  background:
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 3px,
-      rgba(210, 160, 90, 0.08) 3px,
-      rgba(210, 160, 90, 0.08) 6px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 20px,
-      rgba(210, 160, 90, 0.05) 20px,
-      rgba(210, 160, 90, 0.05) 22px
-    ),
-    var(--card) !important;
+/* Pixel art rendering for sprites only */
+.pixel-sprite {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }

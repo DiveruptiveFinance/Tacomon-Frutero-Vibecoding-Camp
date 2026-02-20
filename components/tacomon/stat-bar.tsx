@@ -23,25 +23,14 @@ export function StatBar({ label, emoji, value, maxValue, color, bgColor }: StatB
         </span>
       </div>
       <div
-        className="w-full h-5 md:h-6 relative"
-        style={{
-          backgroundColor: bgColor,
-          border: '3px solid var(--border)',
-          imageRendering: 'pixelated',
-        }}
+        className="stat-bar-track"
+        style={{ backgroundColor: bgColor }}
       >
         <div
-          className="h-full transition-all duration-700 ease-out"
+          className="stat-bar-fill"
           style={{
             width: `${percentage}%`,
             backgroundColor: color,
-          }}
-        />
-        {/* Pixel scanline effect */}
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)`,
           }}
         />
       </div>

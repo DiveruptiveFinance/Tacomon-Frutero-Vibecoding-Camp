@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import Image from 'next/image'
 import { TacomonData, TACO_CONFIG, COOLDOWN_MS, SPECIALTY_CONFIG } from '@/lib/tacomon-types'
 import { getRandomQuestion } from '@/lib/quiz-data'
 import { StatBar } from './stat-bar'
@@ -9,6 +8,7 @@ import { QuizModal } from './quiz-modal'
 import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
 import { ChatSection } from './chat-section'
+import { TacoSprite } from './taco-sprite'
 import type { QuizQuestion } from '@/lib/tacomon-types'
 
 interface MainScreenProps {
@@ -38,7 +38,6 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
   const config = TACO_CONFIG[tacomon.type]
   const specialtyConfig = tacomon.specialty ? SPECIALTY_CONFIG[tacomon.specialty] : null
 
-  // Check cooldowns on mount and periodically
   useEffect(() => {
     const checkCooldowns = () => {
       const now = Date.now()
@@ -111,10 +110,11 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
     <main className="min-h-screen flex flex-col" style={{ backgroundColor: config.bgColor }}>
       {/* Header */}
       <header
-        className="flex items-center justify-between px-3 md:px-6 py-3"
+        className="flex items-center justify-between px-4 md:px-6 py-3"
         style={{
           backgroundColor: 'var(--card)',
-          borderBottom: '4px solid var(--border)',
+          borderBottom: '1px solid var(--border)',
+          borderRadius: '0 0 16px 16px',
         }}
       >
         <h1 style={{ fontSize: 'var(--text-base)', color: 'var(--foreground)' }}>
@@ -124,23 +124,17 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           <ThemeToggle />
           <button
             onClick={handleReset}
-            className="px-2 py-1 transition-all duration-200 hover:opacity-70"
-            style={{
-              fontSize: 'var(--text-xs)',
-              color: 'var(--muted-foreground)',
-              border: '2px solid var(--muted-foreground)',
-              cursor: 'pointer',
-              backgroundColor: 'transparent',
-            }}
+            className="btn btn-ghost"
+            style={{ fontSize: 'var(--text-xs)' }}
           >
             {'Reiniciar'}
           </button>
         </div>
       </header>
 
-      {/* Main Content - Responsive Grid */}
+      {/* Main Content */}
       <div className="flex-1 px-4 py-4 md:py-8 max-w-5xl mx-auto w-full">
-        {/* Tacomon Name & Info - always on top */}
+        {/* Tacomon Name & Info */}
         <div className="text-center mb-4">
           <h2 style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
             {tacomon.name}
@@ -154,7 +148,6 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               {tacomon.gender === 'masculino' ? '\u{2642}' : '\u{2640}'}
             </span>
           </div>
-          {/* Specialty badge */}
           {specialtyConfig && (
             <div className="flex items-center justify-center gap-1 mt-1">
               <span>{specialtyConfig.emoji}</span>
@@ -171,32 +164,19 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           <div className="flex flex-col items-center gap-4">
             {/* Sprite Area */}
             <div
-              className="pet-area relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center"
+              className="pet-area relative flex items-center justify-center"
               onClick={spawnHearts}
               onTouchStart={spawnHearts}
               role="button"
               tabIndex={0}
               aria-label={`Acariciar a ${tacomon.name}`}
             >
-              <div className="animate-taco-idle">
-                <div className="relative w-32 h-32 md:w-48 md:h-48">
-                  <Image
-                    src={config.sprite}
-                    alt={`Tacomon ${tacomon.name}`}
-                    fill
-                    className="pixel-sprite object-contain"
-                    priority
-                  />
-                </div>
-              </div>
+              <TacoSprite specialty={tacomon.specialty} size="lg" />
               <HeartsLayer />
             </div>
 
             {/* Stats */}
-            <div
-              className="nes-container is-rounded wood-container w-full"
-              style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
-            >
+            <div className="modern-card w-full">
               <div className="flex flex-col gap-3">
                 <StatBar
                   label="Felicidad"
@@ -230,7 +210,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               <button
                 onClick={() => handleAction('alimentar')}
                 disabled={cooldowns.alimentar}
-                className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'is-disabled' : 'is-error'}`}
+                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'btn-disabled' : 'btn-danger'}`}
                 style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
               >
                 <span className="text-base md:text-lg">{'\u{1F34E}'}</span>
@@ -240,7 +220,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               <button
                 onClick={() => handleAction('charlar')}
                 disabled={cooldowns.charlar}
-                className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.charlar ? 'is-disabled' : 'is-success'}`}
+                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.charlar ? 'btn-disabled' : 'btn-success'}`}
                 style={{ cursor: cooldowns.charlar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
               >
                 <span className="text-base md:text-lg">{'\u{1F4AC}'}</span>
@@ -250,7 +230,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               <button
                 onClick={() => handleAction('jugar')}
                 disabled={cooldowns.jugar}
-                className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'is-disabled' : 'is-warning'}`}
+                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'btn-disabled' : 'btn-warning'}`}
                 style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
               >
                 <span className="text-base md:text-lg">{'\u{26A1}'}</span>
@@ -273,7 +253,6 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           <div className="flex flex-col gap-4">
             <ChatSection tacomon={tacomon} onUpdateStats={onUpdateStats} />
 
-            {/* Footer info */}
             <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
               {'Toca a tu Tacomon para acariciarlo!'}
             </p>
@@ -298,11 +277,10 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
       {showResetConfirm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
         >
           <div
-            className="nes-container is-rounded max-w-sm w-full animate-slide-up"
-            style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
+            className="modern-card max-w-sm w-full animate-slide-up"
           >
             <div className="text-center mb-4">
               <span className="text-2xl">{'\u{26A0}\u{FE0F}'}</span>
@@ -318,14 +296,14 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             <div className="flex gap-2">
               <button
                 onClick={() => setShowResetConfirm(false)}
-                className="nes-btn flex-1"
+                className="btn btn-ghost flex-1"
                 style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
               >
                 {'Cancelar'}
               </button>
               <button
                 onClick={confirmReset}
-                className="nes-btn is-error flex-1"
+                className="btn btn-danger flex-1"
                 style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
               >
                 {'Si, reiniciar'}

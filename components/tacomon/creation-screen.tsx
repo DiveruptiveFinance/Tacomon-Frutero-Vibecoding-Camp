@@ -7,12 +7,12 @@ import {
   Specialty,
   TacomonData,
   TACO_CONFIG,
-  NAME_SUGGESTIONS,
   SPECIALTIES_BY_TYPE,
   SPECIALTY_CONFIG,
 } from '@/lib/tacomon-types'
 import { HatchingScene } from './hatching-scene'
 import { ThemeToggle } from './theme-toggle'
+import { TacoSprite } from './taco-sprite'
 
 interface CreationScreenProps {
   onCreated: (data: TacomonData) => void
@@ -38,7 +38,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
 
   const handleTypeSelect = useCallback((type: TacoType) => {
     setSelectedType(type)
-    setSelectedSpecialty(null) // Reset specialty when type changes
+    setSelectedSpecialty(null)
   }, [])
 
   const handleCreate = useCallback(() => {
@@ -73,16 +73,16 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-start px-4 py-6 md:py-10"
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-6 md:py-10"
       style={{ backgroundColor: 'var(--background)' }}
     >
-      {/* Theme Toggle - top right */}
+      {/* Theme Toggle */}
       <div className="w-full max-w-lg flex justify-end mb-3">
         <ThemeToggle />
       </div>
 
       {/* Title */}
-      <div className="nes-container is-rounded wood-container mb-6 md:mb-8 text-center w-full max-w-lg">
+      <div className="modern-card mb-6 md:mb-8 text-center w-full max-w-lg">
         <h1 className="leading-relaxed" style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
           {'🌮 Crea tu Tacomon'}
         </h1>
@@ -91,18 +91,17 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
         </p>
       </div>
 
-      {/* Name Input Section */}
-      <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6">
-        <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Nombre'}</p>
+      {/* Name Input */}
+      <div className="modern-card w-full max-w-lg mb-6">
+        <p className="mb-3 font-semibold" style={{ fontSize: 'var(--text-sm)' }}>{'Nombre'}</p>
         <div className="flex flex-col gap-3">
           <input
             type="text"
-            className="nes-input"
+            className="modern-input"
             placeholder="Escribe un nombre..."
             value={name}
             onChange={handleNameChange}
             maxLength={10}
-            style={{ fontSize: 'var(--text-sm)' }}
           />
           <div className="flex justify-between items-center">
             <span
@@ -121,42 +120,19 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
               {name.length}/10
             </span>
           </div>
-
-          {/* Name Suggestions */}
-          <div className="flex flex-wrap gap-2 mt-1">
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-              {'Sugerencias:'}
-            </span>
-            {NAME_SUGGESTIONS.slice(0, 4).map((suggestion) => (
-              <button
-                key={suggestion}
-                onClick={() => setName(suggestion)}
-                className="px-2 py-1 transition-all duration-200 hover:scale-110"
-                style={{
-                  fontSize: 'var(--text-xs)',
-                  backgroundColor: 'var(--secondary)',
-                  color: 'var(--secondary-foreground)',
-                  border: '2px solid var(--border)',
-                  cursor: 'pointer',
-                }}
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
       {/* Type Selection */}
-      <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6">
-        <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Tipo de Taco'}</p>
+      <div className="modern-card w-full max-w-lg mb-6">
+        <p className="mb-3 font-semibold" style={{ fontSize: 'var(--text-sm)' }}>{'Tipo de Taco'}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {(Object.entries(TACO_CONFIG) as [TacoType, typeof TACO_CONFIG[TacoType]][]).map(
             ([type, config]) => (
               <button
                 key={type}
                 onClick={() => handleTypeSelect(type)}
-                className={`type-card nes-container is-rounded p-3 text-center ${selectedType === type ? 'selected' : ''}`}
+                className={`type-card text-center ${selectedType === type ? 'selected' : ''}`}
                 style={{
                   backgroundColor: selectedType === type ? config.bgColor : 'var(--card)',
                   color: 'var(--foreground)',
@@ -183,10 +159,18 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
         </div>
       </div>
 
-      {/* Specialty Selection - only show after type is selected */}
+      {/* Specialty Selection */}
       {selectedType && (
-        <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6 animate-slide-up">
-          <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'🌶️ Especialidad'}</p>
+        <div className="modern-card w-full max-w-lg mb-6 animate-slide-up">
+          <p className="mb-3 font-semibold" style={{ fontSize: 'var(--text-sm)' }}>{'🌶️ Especialidad'}</p>
+
+          {/* Specialty preview sprite */}
+          {selectedSpecialty && (
+            <div className="flex justify-center mb-4">
+              <TacoSprite specialty={selectedSpecialty} size="sm" />
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {SPECIALTIES_BY_TYPE[selectedType].map((spec) => {
               const cfg = SPECIALTY_CONFIG[spec]
@@ -194,7 +178,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
                 <button
                   key={spec}
                   onClick={() => setSelectedSpecialty(spec)}
-                  className={`type-card nes-container is-rounded p-3 text-center ${selectedSpecialty === spec ? 'selected' : ''}`}
+                  className={`type-card text-center ${selectedSpecialty === spec ? 'selected' : ''}`}
                   style={{
                     backgroundColor: selectedSpecialty === spec ? 'var(--taco-pink-bg)' : 'var(--card)',
                     color: 'var(--foreground)',
@@ -223,15 +207,15 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
       )}
 
       {/* Gender Selection */}
-      <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6">
-        <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Genero'}</p>
+      <div className="modern-card w-full max-w-lg mb-6">
+        <p className="mb-3 font-semibold" style={{ fontSize: 'var(--text-sm)' }}>{'Genero'}</p>
         <div className="flex gap-4 justify-center">
           <button
             onClick={() => setSelectedGender('masculino')}
-            className={`gender-option nes-container is-rounded flex flex-col items-center gap-2 ${selectedGender === 'masculino' ? 'selected-male' : ''}`}
+            className={`gender-option flex flex-col items-center gap-2 ${selectedGender === 'masculino' ? 'selected-male' : ''}`}
             style={{
               backgroundColor: selectedGender === 'masculino' ? 'var(--gender-male-bg)' : 'var(--card)',
-              color: selectedGender === 'masculino' ? '#fff' : 'var(--foreground)',
+              color: selectedGender === 'masculino' ? 'var(--foreground)' : 'var(--foreground)',
               borderColor: selectedGender === 'masculino' ? 'var(--gender-male)' : 'transparent',
               cursor: 'pointer',
             }}
@@ -241,10 +225,10 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
           </button>
           <button
             onClick={() => setSelectedGender('femenino')}
-            className={`gender-option nes-container is-rounded flex flex-col items-center gap-2 ${selectedGender === 'femenino' ? 'selected-female' : ''}`}
+            className={`gender-option flex flex-col items-center gap-2 ${selectedGender === 'femenino' ? 'selected-female' : ''}`}
             style={{
               backgroundColor: selectedGender === 'femenino' ? 'var(--gender-female-bg)' : 'var(--card)',
-              color: selectedGender === 'femenino' ? '#fff' : 'var(--foreground)',
+              color: selectedGender === 'femenino' ? 'var(--foreground)' : 'var(--foreground)',
               borderColor: selectedGender === 'femenino' ? 'var(--gender-female)' : 'transparent',
               cursor: 'pointer',
             }}
@@ -260,10 +244,11 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
         <button
           onClick={handleCreate}
           disabled={!canCreate}
-          className={`nes-btn w-full py-3 ${canCreate ? 'is-warning animate-pulse-glow' : 'is-disabled'}`}
+          className={`btn w-full py-3 ${canCreate ? 'btn-warning animate-pulse-glow' : 'btn-disabled'}`}
           style={{
             cursor: canCreate ? 'pointer' : 'not-allowed',
             fontSize: 'var(--text-base)',
+            opacity: canCreate ? 1 : 0.5,
           }}
         >
           {'🔥 Cocinar!'}
