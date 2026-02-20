@@ -16,7 +16,7 @@ export default function TacomonPage() {
       >
         <div className="text-center animate-taco-bounce">
           <span className="text-4xl block mb-4">{'\u{1F32E}'}</span>
-          <p className="text-[8px]" style={{ color: 'var(--muted-foreground)' }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
             {'Cargando...'}
           </p>
         </div>

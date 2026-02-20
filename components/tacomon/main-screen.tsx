@@ -6,6 +6,7 @@ import { TacomonData, TACO_CONFIG, COOLDOWN_MS } from '@/lib/tacomon-types'
 import { getRandomQuestion } from '@/lib/quiz-data'
 import { StatBar } from './stat-bar'
 import { QuizModal } from './quiz-modal'
+import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
 import type { QuizQuestion } from '@/lib/tacomon-types'
 
@@ -114,36 +115,40 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           borderBottom: '4px solid var(--border)',
         }}
       >
-        <h1 className="text-[9px] md:text-sm" style={{ color: 'var(--foreground)' }}>
+        <h1 style={{ fontSize: 'var(--text-base)', color: 'var(--foreground)' }}>
           {'\u{1F32E} Tacomon'}
         </h1>
-        <button
-          onClick={handleReset}
-          className="text-[6px] md:text-[8px] px-2 py-1 transition-all duration-200 hover:opacity-70"
-          style={{
-            color: 'var(--muted-foreground)',
-            border: '2px solid var(--muted-foreground)',
-            cursor: 'pointer',
-            backgroundColor: 'transparent',
-          }}
-        >
-          {'Reiniciar'}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={handleReset}
+            className="px-2 py-1 transition-all duration-200 hover:opacity-70"
+            style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--muted-foreground)',
+              border: '2px solid var(--muted-foreground)',
+              cursor: 'pointer',
+              backgroundColor: 'transparent',
+            }}
+          >
+            {'Reiniciar'}
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center px-4 py-4 md:py-8 gap-4 md:gap-6 max-w-lg mx-auto w-full">
         {/* Tacomon Name & Info */}
         <div className="text-center">
-          <h2 className="text-xs md:text-base" style={{ color: 'var(--foreground)' }}>
+          <h2 style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
             {tacomon.name}
           </h2>
           <div className="flex items-center justify-center gap-2 mt-1">
             <span className="text-sm">{config.emoji}</span>
-            <span className="text-[7px]" style={{ color: 'var(--muted-foreground)' }}>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
               {config.label}
             </span>
-            <span className="text-[7px]">
+            <span style={{ fontSize: 'var(--text-xs)' }}>
               {tacomon.gender === 'masculino' ? '\u{2642}' : '\u{2640}'}
             </span>
           </div>
@@ -207,54 +212,52 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
 
         {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-2 md:gap-3 w-full">
-          {/* Alimentar */}
           <button
             onClick={() => handleAction('alimentar')}
             disabled={cooldowns.alimentar}
-            className={`nes-btn text-[6px] md:text-[8px] py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'is-disabled' : 'is-error'}`}
-            style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer' }}
+            className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'is-disabled' : 'is-error'}`}
+            style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
           >
             <span className="text-base md:text-lg">{'\u{1F34E}'}</span>
             <span>{'Alimentar'}</span>
-            {cooldowns.alimentar && (
-              <span className="text-[5px] md:text-[6px]">{formatTime(timeLeft.alimentar)}</span>
-            )}
           </button>
 
-          {/* Charlar */}
           <button
             onClick={() => handleAction('charlar')}
             disabled={cooldowns.charlar}
-            className={`nes-btn text-[6px] md:text-[8px] py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.charlar ? 'is-disabled' : 'is-success'}`}
-            style={{ cursor: cooldowns.charlar ? 'not-allowed' : 'pointer' }}
+            className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.charlar ? 'is-disabled' : 'is-success'}`}
+            style={{ cursor: cooldowns.charlar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
           >
             <span className="text-base md:text-lg">{'\u{1F4AC}'}</span>
             <span>{'Charlar'}</span>
-            {cooldowns.charlar && (
-              <span className="text-[5px] md:text-[6px]">{formatTime(timeLeft.charlar)}</span>
-            )}
           </button>
 
-          {/* Jugar */}
           <button
             onClick={() => handleAction('jugar')}
             disabled={cooldowns.jugar}
-            className={`nes-btn text-[6px] md:text-[8px] py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'is-disabled' : 'is-warning'}`}
-            style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer' }}
+            className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'is-disabled' : 'is-warning'}`}
+            style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
           >
             <span className="text-base md:text-lg">{'\u{26A1}'}</span>
             <span>{'Jugar'}</span>
-            {cooldowns.jugar && (
-              <span className="text-[5px] md:text-[6px]">{formatTime(timeLeft.jugar)}</span>
-            )}
           </button>
         </div>
 
+        {/* Cooldown Timer - below buttons */}
+        {(cooldowns.alimentar || cooldowns.charlar || cooldowns.jugar) && (
+          <div className="cooldown-timer text-center w-full">
+            <span>{'⏰ '}</span>
+            {cooldowns.alimentar && <span>{'🍎 '}{formatTime(timeLeft.alimentar)}{' '}</span>}
+            {cooldowns.charlar && <span>{'💬 '}{formatTime(timeLeft.charlar)}{' '}</span>}
+            {cooldowns.jugar && <span>{'⚡ '}{formatTime(timeLeft.jugar)}</span>}
+          </div>
+        )}
+
         {/* Footer info */}
-        <p className="text-[6px] md:text-[7px] text-center" style={{ color: 'var(--muted-foreground)' }}>
+        <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
           {'Toca a tu Tacomon para acariciarlo!'}
         </p>
-        <p className="text-[5px] md:text-[6px] text-center" style={{ color: 'var(--muted-foreground)' }}>
+        <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
           {'Creado el: '}{new Date(tacomon.createdAt).toLocaleDateString('es-MX')}
         </p>
       </div>
@@ -281,11 +284,11 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           >
             <div className="text-center mb-4">
               <span className="text-2xl">{'\u{26A0}\u{FE0F}'}</span>
-              <h3 className="text-[8px] md:text-xs mt-2" style={{ color: 'var(--destructive)' }}>
+              <h3 className="mt-2" style={{ fontSize: 'var(--text-sm)', color: 'var(--destructive)' }}>
                 {'Cuidado!'}
               </h3>
             </div>
-            <p className="text-[7px] md:text-[8px] leading-relaxed text-center mb-4">
+            <p className="leading-relaxed text-center mb-4" style={{ fontSize: 'var(--text-xs)' }}>
               {'Estas seguro de que quieres reiniciar? Perderas a '}
               <span style={{ color: config.color }}>{tacomon.name}</span>
               {' y todo su progreso para siempre.'}
@@ -293,15 +296,15 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             <div className="flex gap-2">
               <button
                 onClick={() => setShowResetConfirm(false)}
-                className="nes-btn flex-1 text-[7px] md:text-[8px]"
-                style={{ cursor: 'pointer' }}
+                className="nes-btn flex-1"
+                style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
               >
                 {'Cancelar'}
               </button>
               <button
                 onClick={confirmReset}
-                className="nes-btn is-error flex-1 text-[7px] md:text-[8px]"
-                style={{ cursor: 'pointer' }}
+                className="nes-btn is-error flex-1"
+                style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
               >
                 {'Si, reiniciar'}
               </button>

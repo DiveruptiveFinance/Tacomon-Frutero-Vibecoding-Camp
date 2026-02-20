@@ -66,7 +66,7 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
         {/* Header */}
         <div className="text-center mb-4">
           <span className="text-2xl">{config.emoji}</span>
-          <h2 className="text-[9px] md:text-xs mt-2" style={{ color: config.color }}>
+          <h2 className="mt-2" style={{ fontSize: 'var(--text-sm)', color: config.color }}>
             {config.title}
           </h2>
         </div>
@@ -76,7 +76,7 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
           className="nes-container is-rounded mb-4"
           style={{ backgroundColor: config.bgColor, color: 'var(--foreground)' }}
         >
-          <p className="text-[7px] md:text-[9px] leading-relaxed">
+          <p className="leading-relaxed" style={{ fontSize: 'var(--text-xs)' }}>
             {question.question}
           </p>
         </div>
@@ -89,6 +89,7 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
               backgroundColor: 'var(--secondary)',
               color: 'var(--foreground)',
               border: '3px solid var(--border)',
+              borderRadius: '8px',
             }
 
             if (showResult) {
@@ -123,14 +124,14 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
                 style={btnStyle}
                 disabled={showResult}
               >
-                <span className="text-[7px] md:text-[8px] leading-relaxed">
+                <span className="leading-relaxed" style={{ fontSize: 'var(--text-xs)' }}>
                   {String.fromCharCode(65 + index)}{'. '}{option}
                 </span>
                 {showResult && index === question.correctIndex && (
-                  <span className="text-[7px] ml-2">{'  Correcto!'}</span>
+                  <span className="ml-2" style={{ fontSize: 'var(--text-xs)' }}>{'  Correcto!'}</span>
                 )}
                 {showResult && index === selectedAnswer && !isCorrect && index !== question.correctIndex && (
-                  <span className="text-[7px] ml-2">{'  X'}</span>
+                  <span className="ml-2" style={{ fontSize: 'var(--text-xs)' }}>{'  X'}</span>
                 )}
               </button>
             )
@@ -141,12 +142,12 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
         {showResult && (
           <div className="text-center animate-slide-up">
             <p
-              className="text-[7px] md:text-[8px] leading-relaxed mb-3"
-              style={{ color: isCorrect ? 'var(--taco-green)' : 'var(--taco-red)' }}
+              className="leading-relaxed mb-3"
+              style={{ fontSize: 'var(--text-xs)', color: isCorrect ? 'var(--taco-green)' : 'var(--taco-red)' }}
             >
               {isCorrect ? config.correctMsg : config.wrongMsg}
             </p>
-            <p className="text-[7px]" style={{ color: 'var(--muted-foreground)' }}>
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
               {isCorrect ? '+15 stats!' : '+5 stats'}
             </p>
           </div>
@@ -156,8 +157,8 @@ export function QuizModal({ question, actionType, onResult, onClose }: QuizModal
         {!showResult && (
           <button
             onClick={onClose}
-            className="nes-btn w-full text-[7px] md:text-[8px] mt-2"
-            style={{ cursor: 'pointer' }}
+            className="nes-btn w-full mt-2"
+            style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
           >
             {'Cancelar'}
           </button>

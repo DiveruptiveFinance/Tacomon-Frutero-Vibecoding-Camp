@@ -9,6 +9,7 @@ import {
   NAME_SUGGESTIONS,
 } from '@/lib/tacomon-types'
 import { HatchingScene } from './hatching-scene'
+import { ThemeToggle } from './theme-toggle'
 
 interface CreationScreenProps {
   onCreated: (data: TacomonData) => void
@@ -65,33 +66,38 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
     <main className="min-h-screen flex flex-col items-center justify-start px-4 py-6 md:py-10"
       style={{ backgroundColor: 'var(--background)' }}
     >
+      {/* Theme Toggle - top right */}
+      <div className="w-full max-w-lg flex justify-end mb-3">
+        <ThemeToggle />
+      </div>
+
       {/* Title */}
       <div className="nes-container is-rounded mb-6 md:mb-8 text-center w-full max-w-lg">
-        <h1 className="text-sm md:text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
+        <h1 className="leading-relaxed" style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
           {'Crea tu Tacomon'}
         </h1>
-        <p className="text-[8px] md:text-xs mt-2" style={{ color: 'var(--muted-foreground)' }}>
+        <p className="mt-2" style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
           {'Elige un nombre, tipo y genero para tu taco'}
         </p>
       </div>
 
       {/* Name Input Section */}
       <div className="nes-container with-title is-rounded w-full max-w-lg mb-6">
-        <p className="title text-[8px] md:text-xs">{'Nombre'}</p>
+        <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Nombre'}</p>
         <div className="flex flex-col gap-3">
           <input
             type="text"
-            className="nes-input text-xs md:text-sm"
+            className="nes-input"
             placeholder="Escribe un nombre..."
             value={name}
             onChange={handleNameChange}
             maxLength={10}
-            style={{ fontSize: '10px' }}
+            style={{ fontSize: 'var(--text-sm)' }}
           />
           <div className="flex justify-between items-center">
             <span
-              className="text-[8px]"
               style={{
+                fontSize: 'var(--text-xs)',
                 color: isNameValid ? 'var(--taco-green)' : name.length > 0 && name.trim().length < 2 ? 'var(--taco-red)' : 'var(--muted-foreground)',
               }}
             >
@@ -101,22 +107,23 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
                   ? 'Nombre valido!'
                   : ''}
             </span>
-            <span className="text-[8px]" style={{ color: 'var(--muted-foreground)' }}>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
               {name.length}/10
             </span>
           </div>
 
           {/* Name Suggestions */}
           <div className="flex flex-wrap gap-2 mt-1">
-            <span className="text-[7px]" style={{ color: 'var(--muted-foreground)' }}>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
               {'Sugerencias:'}
             </span>
             {NAME_SUGGESTIONS.slice(0, 4).map((suggestion) => (
               <button
                 key={suggestion}
                 onClick={() => setName(suggestion)}
-                className="text-[7px] px-2 py-1 transition-all duration-200 hover:scale-110"
+                className="px-2 py-1 transition-all duration-200 hover:scale-110"
                 style={{
+                  fontSize: 'var(--text-xs)',
                   backgroundColor: 'var(--secondary)',
                   color: 'var(--secondary-foreground)',
                   border: '2px solid var(--border)',
@@ -132,7 +139,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
 
       {/* Type Selection */}
       <div className="nes-container with-title is-rounded w-full max-w-lg mb-6">
-        <p className="title text-[8px] md:text-xs">{'Tipo de Taco'}</p>
+        <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Tipo de Taco'}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {(Object.entries(TACO_CONFIG) as [TacoType, typeof TACO_CONFIG[TacoType]][]).map(
             ([type, config]) => (
@@ -148,15 +155,15 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
                 }}
               >
                 <span className="text-2xl block mb-2">{config.emoji}</span>
-                <span className="text-[7px] md:text-[8px] block leading-relaxed">{config.label}</span>
+                <span className="block leading-relaxed" style={{ fontSize: 'var(--text-xs)' }}>{config.label}</span>
                 <span
-                  className="text-[6px] block mt-1 leading-relaxed"
-                  style={{ color: 'var(--muted-foreground)' }}
+                  className="block mt-1 leading-relaxed"
+                  style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}
                 >
                   {config.description}
                 </span>
                 {selectedType === type && (
-                  <span className="text-[8px] block mt-2" style={{ color: config.color }}>
+                  <span className="block mt-2" style={{ fontSize: 'var(--text-xs)', color: config.color }}>
                     {'Seleccionado!'}
                   </span>
                 )}
@@ -168,31 +175,33 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
 
       {/* Gender Selection */}
       <div className="nes-container with-title is-rounded w-full max-w-lg mb-6">
-        <p className="title text-[8px] md:text-xs">{'Genero'}</p>
+        <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Genero'}</p>
         <div className="flex gap-4 justify-center">
           <button
             onClick={() => setSelectedGender('masculino')}
-            className={`gender-option nes-container is-rounded flex flex-col items-center gap-2 ${selectedGender === 'masculino' ? 'selected' : ''}`}
+            className={`gender-option nes-container is-rounded flex flex-col items-center gap-2 ${selectedGender === 'masculino' ? 'selected-male' : ''}`}
             style={{
-              backgroundColor: selectedGender === 'masculino' ? 'var(--taco-blue-bg)' : 'var(--card)',
-              color: 'var(--foreground)',
+              backgroundColor: selectedGender === 'masculino' ? 'var(--gender-male-bg)' : 'var(--card)',
+              color: selectedGender === 'masculino' ? '#fff' : 'var(--foreground)',
+              borderColor: selectedGender === 'masculino' ? 'var(--gender-male)' : 'transparent',
               cursor: 'pointer',
             }}
           >
-            <span className="text-2xl">{'♂'}</span>
-            <span className="text-[7px]">{'Masculino'}</span>
+            <span className="text-2xl" style={{ color: '#4A90D9' }}>{'♂'}</span>
+            <span style={{ fontSize: 'var(--text-xs)' }}>{'Masculino'}</span>
           </button>
           <button
             onClick={() => setSelectedGender('femenino')}
-            className={`gender-option nes-container is-rounded flex flex-col items-center gap-2 ${selectedGender === 'femenino' ? 'selected' : ''}`}
+            className={`gender-option nes-container is-rounded flex flex-col items-center gap-2 ${selectedGender === 'femenino' ? 'selected-female' : ''}`}
             style={{
-              backgroundColor: selectedGender === 'femenino' ? 'var(--taco-red-bg)' : 'var(--card)',
-              color: 'var(--foreground)',
+              backgroundColor: selectedGender === 'femenino' ? 'var(--gender-female-bg)' : 'var(--card)',
+              color: selectedGender === 'femenino' ? '#fff' : 'var(--foreground)',
+              borderColor: selectedGender === 'femenino' ? 'var(--gender-female)' : 'transparent',
               cursor: 'pointer',
             }}
           >
-            <span className="text-2xl">{'♀'}</span>
-            <span className="text-[7px]">{'Femenino'}</span>
+            <span className="text-2xl" style={{ color: '#D94A8A' }}>{'♀'}</span>
+            <span style={{ fontSize: 'var(--text-xs)' }}>{'Femenino'}</span>
           </button>
         </div>
       </div>
@@ -202,15 +211,16 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
         <button
           onClick={handleCreate}
           disabled={!canCreate}
-          className={`nes-btn w-full text-xs md:text-sm py-3 ${canCreate ? 'is-warning animate-pulse-glow' : 'is-disabled'}`}
+          className={`nes-btn w-full py-3 ${canCreate ? 'is-warning animate-pulse-glow' : 'is-disabled'}`}
           style={{
             cursor: canCreate ? 'pointer' : 'not-allowed',
+            fontSize: 'var(--text-base)',
           }}
         >
           {'Cocinar!'}
         </button>
         {!canCreate && (
-          <p className="text-[7px] text-center mt-2" style={{ color: 'var(--muted-foreground)' }}>
+          <p className="text-center mt-2" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
             {!isNameValid && name.length === 0
               ? 'Escribe un nombre para tu Tacomon'
               : !isNameValid

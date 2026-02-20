@@ -76,7 +76,7 @@ export function HatchingScene({ tacomon, onComplete }: HatchingSceneProps) {
                 priority
               />
             </div>
-            <p className="text-[8px] md:text-xs text-center mt-4" style={{ color: 'var(--foreground)' }}>
+            <p className="text-center mt-4" style={{ fontSize: 'var(--text-sm)', color: 'var(--foreground)' }}>
               {'Algo se mueve dentro...'}
             </p>
             {/* Dots animation */}
@@ -131,20 +131,20 @@ export function HatchingScene({ tacomon, onComplete }: HatchingSceneProps) {
                 className="nes-container is-rounded mt-6 text-center max-w-sm animate-slide-up"
                 style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
               >
-                <p className="text-[8px] md:text-xs leading-relaxed">
-                  <span style={{ color: config.color }} className="text-xs md:text-sm">
+                <p className="leading-relaxed" style={{ fontSize: 'var(--text-sm)' }}>
+                  <span style={{ color: config.color, fontSize: 'var(--text-base)' }}>
                     {tacomon.name}
                   </span>
                   {' ha nacido y esta listo para ser el mejor taco de todos!'}
                 </p>
-                <p className="text-[7px] mt-2" style={{ color: 'var(--muted-foreground)' }}>
+                <p className="mt-2" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
                   {tacomon.gender === 'masculino' ? '♂' : '♀'} {config.label}
                 </p>
 
                 <button
                   onClick={onComplete}
-                  className="nes-btn is-primary mt-4 text-[8px] md:text-xs"
-                  style={{ cursor: 'pointer' }}
+                  className="nes-btn is-primary mt-4"
+                  style={{ cursor: 'pointer', fontSize: 'var(--text-sm)' }}
                 >
                   {'Continuar'}
                 </button>

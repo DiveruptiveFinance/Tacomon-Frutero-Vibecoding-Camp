@@ -15,10 +15,10 @@ export function StatBar({ label, emoji, value, maxValue, color, bgColor }: StatB
   return (
     <div className="flex flex-col gap-1 w-full">
       <div className="flex justify-between items-center">
-        <span className="text-[7px] md:text-[9px]" style={{ color: 'var(--foreground)' }}>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--foreground)' }}>
           {emoji} {label}
         </span>
-        <span className="text-[7px] md:text-[9px]" style={{ color: 'var(--muted-foreground)' }}>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
           {value}/{maxValue}
         </span>
       </div>
