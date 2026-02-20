@@ -10,14 +10,13 @@ interface ChatRequestBody {
   message: string
   tacomonName: string
   tacomonType: string
-  tacomonGender: string
   tacomonSpecialty?: string
   stats: { happiness: number; energy: number; hunger: number }
   memories: string[]
 }
 
 function buildSystemPrompt(body: ChatRequestBody): string {
-  const { tacomonName, tacomonType, tacomonGender, tacomonSpecialty, stats, memories } = body
+  const { tacomonName, tacomonType, tacomonSpecialty, stats, memories } = body
 
   const typePersonality: Record<string, string> = {
     carne: `Eres de tipo carne 🥩🔥. Te encanta el fuego, la parrilla y todo lo intenso. Te dan miedo los cubitos de hielo y el agua fría. Eres apasionado/a y valiente.`,
@@ -41,7 +40,7 @@ function buildSystemPrompt(body: ChatRequestBody): string {
     ? `\nRecuerdas estas cosas sobre tu dueño/a: ${memories.join('. ')}.`
     : ''
 
-  return `Eres ${tacomonName}, una mascota virtual Tacomon ${tacomonGender === 'masculino' ? 'macho' : 'hembra'} en un juego estilo 8-bit.
+  return `Eres ${tacomonName}, una mascota virtual Tacomon en un juego estilo 8-bit.
 ${typePersonality[tacomonType] || typePersonality.carne}
 ${specialtyPrompt}
 ${moodInstructions}

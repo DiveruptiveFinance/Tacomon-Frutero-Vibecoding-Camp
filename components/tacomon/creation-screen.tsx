@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react'
 import {
   TacoType,
-  Gender,
   Specialty,
   TacomonData,
   TACO_CONFIG,
@@ -21,13 +20,12 @@ interface CreationScreenProps {
 export function CreationScreen({ onCreated }: CreationScreenProps) {
   const [name, setName] = useState('')
   const [selectedType, setSelectedType] = useState<TacoType | null>(null)
-  const [selectedGender, setSelectedGender] = useState<Gender | null>(null)
   const [selectedSpecialty, setSelectedSpecialty] = useState<Specialty | null>(null)
   const [isHatching, setIsHatching] = useState(false)
   const [createdData, setCreatedData] = useState<TacomonData | null>(null)
 
   const isNameValid = name.trim().length >= 2 && name.trim().length <= 10
-  const canCreate = isNameValid && selectedType !== null && selectedGender !== null && selectedSpecialty !== null
+  const canCreate = isNameValid && selectedType !== null && selectedSpecialty !== null
 
   const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -42,12 +40,11 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
   }, [])
 
   const handleCreate = useCallback(() => {
-    if (!canCreate || !selectedType || !selectedGender || !selectedSpecialty) return
+    if (!canCreate || !selectedType || !selectedSpecialty) return
 
     const data: TacomonData = {
       name: name.trim(),
       type: selectedType,
-      gender: selectedGender,
       specialty: selectedSpecialty,
       happiness: 50,
       energy: 50,
@@ -60,7 +57,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
 
     setCreatedData(data)
     setIsHatching(true)
-  }, [canCreate, name, selectedType, selectedGender, selectedSpecialty])
+  }, [canCreate, name, selectedType, selectedSpecialty])
 
   const handleHatchComplete = useCallback(() => {
     if (createdData) {
@@ -87,7 +84,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
           {'🌮 Crea tu Tacomon'}
         </h1>
         <p className="mt-2" style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-          {'Elige un nombre, tipo, especialidad y género para tu taco'}
+          {'Elige un nombre, tipo y especialidad para tu taco'}
         </p>
       </div>
 
@@ -206,39 +203,6 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
         </div>
       )}
 
-      {/* Gender Selection */}
-      <div className="modern-card w-full max-w-lg mb-6">
-        <p className="mb-3 font-semibold" style={{ fontSize: 'var(--text-sm)' }}>{'Genero'}</p>
-        <div className="flex gap-4 justify-center">
-          <button
-            onClick={() => setSelectedGender('masculino')}
-            className={`gender-option flex flex-col items-center gap-2 ${selectedGender === 'masculino' ? 'selected-male' : ''}`}
-            style={{
-              backgroundColor: selectedGender === 'masculino' ? 'var(--gender-male-bg)' : 'var(--card)',
-              color: selectedGender === 'masculino' ? 'var(--foreground)' : 'var(--foreground)',
-              borderColor: selectedGender === 'masculino' ? 'var(--gender-male)' : 'transparent',
-              cursor: 'pointer',
-            }}
-          >
-            <span className="text-2xl" style={{ color: '#4A90D9' }}>{'♂'}</span>
-            <span style={{ fontSize: 'var(--text-xs)' }}>{'Masculino'}</span>
-          </button>
-          <button
-            onClick={() => setSelectedGender('femenino')}
-            className={`gender-option flex flex-col items-center gap-2 ${selectedGender === 'femenino' ? 'selected-female' : ''}`}
-            style={{
-              backgroundColor: selectedGender === 'femenino' ? 'var(--gender-female-bg)' : 'var(--card)',
-              color: selectedGender === 'femenino' ? 'var(--foreground)' : 'var(--foreground)',
-              borderColor: selectedGender === 'femenino' ? 'var(--gender-female)' : 'transparent',
-              cursor: 'pointer',
-            }}
-          >
-            <span className="text-2xl" style={{ color: '#D94A8A' }}>{'♀'}</span>
-            <span style={{ fontSize: 'var(--text-xs)' }}>{'Femenino'}</span>
-          </button>
-        </div>
-      </div>
-
       {/* Create Button */}
       <div className="w-full max-w-lg">
         <button
@@ -261,9 +225,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
                 ? 'El nombre debe tener entre 2 y 10 letras'
                 : !selectedType
                   ? 'Selecciona un tipo de taco'
-                  : !selectedSpecialty
-                    ? 'Selecciona una especialidad'
-                    : 'Selecciona el genero'}
+                  : 'Selecciona una especialidad'}
           </p>
         )}
       </div>

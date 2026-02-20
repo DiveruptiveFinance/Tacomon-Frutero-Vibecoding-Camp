@@ -144,9 +144,6 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
               {config.label}
             </span>
-            <span style={{ fontSize: 'var(--text-xs)' }}>
-              {tacomon.gender === 'masculino' ? '\u{2642}' : '\u{2640}'}
-            </span>
           </div>
           {specialtyConfig && (
             <div className="flex items-center justify-center gap-1 mt-1">
@@ -206,32 +203,22 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-2 md:gap-3 w-full">
+            <div className="grid grid-cols-2 gap-2 md:gap-3 w-full">
               <button
                 onClick={() => handleAction('alimentar')}
                 disabled={cooldowns.alimentar}
                 className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'btn-disabled' : 'btn-danger'}`}
-                style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
+                style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-red)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
               >
                 <span className="text-base md:text-lg">{'\u{1F34E}'}</span>
                 <span>{'Alimentar'}</span>
               </button>
 
               <button
-                onClick={() => handleAction('charlar')}
-                disabled={cooldowns.charlar}
-                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.charlar ? 'btn-disabled' : 'btn-success'}`}
-                style={{ cursor: cooldowns.charlar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
-              >
-                <span className="text-base md:text-lg">{'\u{1F4AC}'}</span>
-                <span>{'Charlar'}</span>
-              </button>
-
-              <button
                 onClick={() => handleAction('jugar')}
                 disabled={cooldowns.jugar}
                 className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'btn-disabled' : 'btn-warning'}`}
-                style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
+                style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-gold)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
               >
                 <span className="text-base md:text-lg">{'\u{26A1}'}</span>
                 <span>{'Jugar'}</span>
@@ -239,11 +226,10 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             </div>
 
             {/* Cooldown Timer */}
-            {(cooldowns.alimentar || cooldowns.charlar || cooldowns.jugar) && (
+            {(cooldowns.alimentar || cooldowns.jugar) && (
               <div className="cooldown-timer text-center w-full">
                 <span>{'⏰ '}</span>
                 {cooldowns.alimentar && <span>{'🍎 '}{formatTime(timeLeft.alimentar)}{' '}</span>}
-                {cooldowns.charlar && <span>{'💬 '}{formatTime(timeLeft.charlar)}{' '}</span>}
                 {cooldowns.jugar && <span>{'⚡ '}{formatTime(timeLeft.jugar)}</span>}
               </div>
             )}

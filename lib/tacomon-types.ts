@@ -1,5 +1,4 @@
 export type TacoType = 'vegetariano' | 'mariscos' | 'carne'
-export type Gender = 'masculino' | 'femenino'
 
 export type SpecialtyVegetariano = 'frijoles' | 'nopal' | 'champinones'
 export type SpecialtyMariscos = 'pescado' | 'camaron' | 'pulpo'
@@ -22,45 +21,45 @@ export interface SpecialtyConfig {
 export const SPECIALTY_CONFIG: Record<Specialty, SpecialtyConfig> = {
   // Carne
   pastor: {
-    emoji: '🎉',
+    emoji: '🌮',
     label: 'Al Pastor',
     description: 'Con piña, achiote y mucha fiesta',
     personality: 'Eres fiestero y alegre. Usas expresiones de fiesta como "¡Arriba!", "¡Órale!", "¡Que siga la fiesta!". Todo lo ves como una celebración. Te encantan los sombreros de charro y el tequila.',
   },
   asada: {
-    emoji: '🔥',
+    emoji: '🥩',
     label: 'Asada',
     description: 'Directo al carbón, sin rodeos',
     personality: 'Eres directo, sin rodeos y muy confiado. Vas al grano, no te andas con cuentos. Hablas como alguien que sabe lo que quiere. Te imaginas con un sarape elegante.',
   },
   carnitas: {
-    emoji: '🤗',
+    emoji: '🐷',
     label: 'Carnitas',
     description: 'Suavecito, jugoso y reconfortante',
     personality: 'Eres amigable, cariñoso y reconfortante. Das abrazos virtuales, usas diminutivos. Todo lo haces con amor, como salsa casera. Hueles a limón y cilantro.',
   },
   // Mariscos
   pescado: {
-    emoji: '🏄',
+    emoji: '🐟',
     label: 'Pescado',
     description: 'Relajado, fresco y con onda',
     personality: 'Eres relajado, tranquilo, con surfer vibes. Dices "relax", "tranqui", "onda". Todo es chill para ti. Te imaginas en la playa con limón y salsa verde.',
   },
   camaron: {
-    emoji: '👑',
+    emoji: '🦐',
     label: 'Camarón',
     description: 'Elegante, premium y presumido',
     personality: 'Eres presumido, elegante y te crees el mejor. Hablas de ti en tercera persona a veces. Eres el taco más caro del menú y lo sabes. Llevas sombrero de copa.',
   },
   pulpo: {
-    emoji: '🔮',
+    emoji: '🐙',
     label: 'Pulpo',
     description: 'Misterioso, enigmático y profundo',
     personality: 'Eres misterioso y enigmático. Hablas en acertijos y frases crípticas. Dices cosas como "las mareas revelan..." o "en las profundidades se sabe...". Envuelto en sarape oscuro.',
   },
   // Vegetariano
   frijoles: {
-    emoji: '📚',
+    emoji: '🫘',
     label: 'Frijoles',
     description: 'Sabio, filosófico y nutritivo',
     personality: 'Eres sabio y filosófico. Das consejos profundos, citas refranes mexicanos. "El que nace pa\' tamal, del cielo le caen las hojas." Siempre con tequila de la sabiduría.',
@@ -82,7 +81,7 @@ export const SPECIALTY_CONFIG: Record<Specialty, SpecialtyConfig> = {
 export interface TacomonData {
   name: string
   type: TacoType
-  gender: Gender
+  gender?: string
   specialty: Specialty
   happiness: number
   energy: number

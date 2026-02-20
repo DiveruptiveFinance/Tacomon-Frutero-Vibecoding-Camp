@@ -110,7 +110,6 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
           message: trimmed,
           tacomonName: tacomon.name,
           tacomonType: tacomon.type,
-          tacomonGender: tacomon.gender,
           tacomonSpecialty: tacomon.specialty,
           stats: {
             happiness: tacomon.happiness,
