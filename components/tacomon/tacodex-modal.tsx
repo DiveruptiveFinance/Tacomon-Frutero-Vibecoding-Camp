@@ -22,7 +22,7 @@ export function TacodexModal({ specialty, onClose }: TacodexModalProps) {
     >
       <div
         className="nes-container is-dark is-rounded with-title max-w-md w-full animate-slide-up"
-        style={{ maxHeight: '90vh', overflowY: 'auto' }}
+        style={{ maxHeight: '90vh', overflowY: 'auto', backgroundColor: '#212529', boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <p className="title" style={{ fontSize: 'var(--text-sm)', backgroundColor: '#212529' }}>
