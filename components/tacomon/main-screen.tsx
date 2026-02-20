@@ -9,6 +9,7 @@ import { QuizModal } from './quiz-modal'
 import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
 import { ChatSection } from './chat-section'
+import { TacodexModal } from './tacodex-modal'
 import { useSalsa } from '@/hooks/use-salsa'
 import type { SalsaHistoryEntry } from '@/hooks/use-salsa'
 import { usePrivy } from '@privy-io/react-auth'
@@ -168,6 +169,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
   const [processState, setProcessState] = useState<'idle' | 'processing' | 'done'>('idle')
   const [showInsufficientTip, setShowInsufficientTip] = useState(false)
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null)
+  const [showTacodex, setShowTacodex] = useState(false)
 
   const { spawnHearts, HeartsLayer } = useFloatingHearts()
   const { spawn: spawnSalsa, Layer: SalsaLayer } = useSalsaFloats()
@@ -335,10 +337,11 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             <div
               className="pet-area relative flex items-center justify-center"
               onClick={spawnHearts}
+              onDoubleClick={() => tacomon.specialty && setShowTacodex(true)}
               onTouchStart={spawnHearts}
               role="button"
               tabIndex={0}
-              aria-label={`Acariciar a ${tacomon.name}`}
+              aria-label={`Acariciar a ${tacomon.name} (doble click para Tacodex)`}
             >
               <div className="relative w-32 h-32 md:w-48 md:h-48">
                 <Image
@@ -462,7 +465,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             <HistorialPanel history={history} />
 
             <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-              Toca a tu Tacomon para acariciarlo!
+              Toca a tu Tacomon para acariciarlo! Doble click para abrir el 📖 Tacodex
             </p>
             <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
               Creado el: {new Date(tacomon.createdAt).toLocaleDateString('es-MX')}
@@ -479,6 +482,11 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           onResult={handleQuizResult}
           onClose={() => setActiveQuiz(null)}
         />
+      )}
+
+      {/* Tacodex Modal */}
+      {showTacodex && tacomon.specialty && (
+        <TacodexModal specialty={tacomon.specialty} onClose={() => setShowTacodex(false)} />
       )}
 
       {/* Reset Confirmation */}
