@@ -310,9 +310,6 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               Iniciar Sesión
             </button>
           )}
-          <button onClick={() => setShowTraining(true)} className="nes-btn is-warning" style={{ fontSize: '10px', padding: '2px 8px' }}>
-            🎓 Entrenar
-          </button>
           <ThemeToggle />
           <button onClick={handleReset} className="nes-btn" style={{ fontSize: '10px', padding: '2px 8px' }}>
             Reiniciar
@@ -442,6 +439,26 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
                 )
               })()}
             </div>
+
+            {/* Training Button */}
+            <button
+              onClick={() => setShowTraining(true)}
+              className="nes-btn is-warning"
+              style={{
+                fontSize: 'var(--text-xs)',
+                padding: '10px 6px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                width: '100%',
+                boxShadow: '0 0 12px rgba(255, 152, 0, 0.5), 0 4px 8px rgba(0,0,0,0.3)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span style={{ fontSize: '1.2em' }}>🎓</span>
+              <span>Entrenar</span>
+            </button>
 
             {/* Feedback */}
             {feedbackMsg && (
