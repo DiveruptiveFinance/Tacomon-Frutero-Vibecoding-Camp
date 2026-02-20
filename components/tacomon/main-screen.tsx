@@ -8,6 +8,7 @@ import { StatBar } from './stat-bar'
 import { QuizModal } from './quiz-modal'
 import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
+import { ChatSection } from './chat-section'
 import type { QuizQuestion } from '@/lib/tacomon-types'
 
 interface MainScreenProps {
@@ -252,6 +253,9 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             {cooldowns.jugar && <span>{'⚡ '}{formatTime(timeLeft.jugar)}</span>}
           </div>
         )}
+
+        {/* Chat Section */}
+        <ChatSection tacomon={tacomon} onUpdateStats={onUpdateStats} />
 
         {/* Footer info */}
         <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
