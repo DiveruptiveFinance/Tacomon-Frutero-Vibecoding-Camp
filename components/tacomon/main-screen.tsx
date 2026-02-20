@@ -11,6 +11,8 @@ import { useFloatingHearts } from './floating-hearts'
 import { ChatSection } from './chat-section'
 import { TacodexModal } from './tacodex-modal'
 import { TrainingView, TrainingBadge } from './training-view'
+import { RegisterHub } from './register-hub'
+import { useHubSync } from '@/hooks/use-hub-sync'
 import { useSalsa } from '@/hooks/use-salsa'
 import type { SalsaHistoryEntry } from '@/hooks/use-salsa'
 import { usePrivy } from '@privy-io/react-auth'
@@ -173,10 +175,12 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null)
   const [showTacodex, setShowTacodex] = useState(false)
   const [showTraining, setShowTraining] = useState(false)
+  const [showSocial, setShowSocial] = useState(false)
 
   const { spawnHearts, HeartsLayer } = useFloatingHearts()
   const { spawn: spawnSalsa, Layer: SalsaLayer } = useSalsaFloats()
   const { balance, streak, history, deductSalsa } = useSalsa()
+  useHubSync()
   const { login, logout, authenticated, user } = usePrivy()
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
@@ -345,8 +349,13 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           />
         )}
 
+        {/* Social View */}
+        {showSocial && (
+          <RegisterHub onBack={() => setShowSocial(false)} />
+        )}
+
         {/* 2-column layout */}
-        {!showTraining && <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:items-stretch">
+        {!showTraining && !showSocial && <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:items-stretch">
           {/* LEFT: Sprite + Stats + Actions */}
           <div className="flex flex-col items-center gap-4">
             {/* Sprite */}
@@ -440,25 +449,45 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               })()}
             </div>
 
-            {/* Training Button */}
-            <button
-              onClick={() => setShowTraining(true)}
-              className="nes-btn is-warning"
-              style={{
-                fontSize: 'var(--text-xs)',
-                padding: '10px 6px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                width: '100%',
-                boxShadow: '0 0 12px rgba(255, 152, 0, 0.5), 0 4px 8px rgba(0,0,0,0.3)',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <span style={{ fontSize: '1.2em' }}>🎓</span>
-              <span>Entrenar</span>
-            </button>
+            {/* Training & Social Buttons */}
+            <div className="grid grid-cols-2 gap-2 w-full">
+              <button
+                onClick={() => setShowTraining(true)}
+                className="nes-btn is-warning"
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  padding: '10px 6px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px',
+                  width: '100%',
+                  boxShadow: '0 0 12px rgba(255, 152, 0, 0.5), 0 4px 8px rgba(0,0,0,0.3)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <span style={{ fontSize: '1.2em' }}>🎓</span>
+                <span>Entrenar</span>
+              </button>
+              <button
+                onClick={() => setShowSocial(true)}
+                className="nes-btn is-primary"
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  padding: '10px 6px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px',
+                  width: '100%',
+                  boxShadow: '0 0 12px rgba(33, 150, 243, 0.5), 0 4px 8px rgba(0,0,0,0.3)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <span style={{ fontSize: '1.2em' }}>🌐</span>
+                <span>Social</span>
+              </button>
+            </div>
 
             {/* Feedback */}
             {feedbackMsg && (
