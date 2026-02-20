@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import Image from 'next/image'
 import { TacomonData, TACO_CONFIG, COOLDOWN_MS, SPECIALTY_CONFIG } from '@/lib/tacomon-types'
 import { getRandomQuestion } from '@/lib/quiz-data'
 import { StatBar } from './stat-bar'
@@ -8,7 +9,6 @@ import { QuizModal } from './quiz-modal'
 import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
 import { ChatSection } from './chat-section'
-import { TacoSprite } from './taco-sprite'
 import type { QuizQuestion } from '@/lib/tacomon-types'
 
 interface MainScreenProps {
@@ -168,7 +168,27 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               tabIndex={0}
               aria-label={`Acariciar a ${tacomon.name}`}
             >
-              <TacoSprite specialty={tacomon.specialty} size="lg" />
+              {specialtyConfig?.sprite ? (
+                <div className="relative w-32 h-32 md:w-48 md:h-48">
+                  <Image
+                    src={specialtyConfig.sprite}
+                    alt={`Tacomon ${tacomon.name}`}
+                    fill
+                    className="object-contain animate-taco-idle"
+                    priority
+                  />
+                </div>
+              ) : (
+                <div className="relative w-32 h-32 md:w-48 md:h-48">
+                  <Image
+                    src={config.sprite}
+                    alt={`Tacomon ${tacomon.name}`}
+                    fill
+                    className="object-contain animate-taco-idle"
+                    priority
+                  />
+                </div>
+              )}
               <HeartsLayer />
             </div>
 

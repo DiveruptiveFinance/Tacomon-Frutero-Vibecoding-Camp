@@ -16,6 +16,7 @@ export interface SpecialtyConfig {
   label: string
   description: string
   personality: string
+  sprite: string
 }
 
 export const SPECIALTY_CONFIG: Record<Specialty, SpecialtyConfig> = {
@@ -24,18 +25,21 @@ export const SPECIALTY_CONFIG: Record<Specialty, SpecialtyConfig> = {
     emoji: '🌮',
     label: 'Al Pastor',
     description: 'Con piña, achiote y mucha fiesta',
+    sprite: '/sprites/pastor.webp',
     personality: 'Eres fiestero y alegre. Usas expresiones de fiesta como "¡Arriba!", "¡Órale!", "¡Que siga la fiesta!". Todo lo ves como una celebración. Te encantan los sombreros de charro y el tequila.',
   },
   asada: {
     emoji: '🥩',
     label: 'Asada',
     description: 'Directo al carbón, sin rodeos',
+    sprite: '/sprites/asada.webp',
     personality: 'Eres directo, sin rodeos y muy confiado. Vas al grano, no te andas con cuentos. Hablas como alguien que sabe lo que quiere. Te imaginas con un sarape elegante.',
   },
   carnitas: {
     emoji: '🐷',
     label: 'Carnitas',
     description: 'Suavecito, jugoso y reconfortante',
+    sprite: '/sprites/carnitas.webp',
     personality: 'Eres amigable, cariñoso y reconfortante. Das abrazos virtuales, usas diminutivos. Todo lo haces con amor, como salsa casera. Hueles a limón y cilantro.',
   },
   // Mariscos
@@ -43,18 +47,21 @@ export const SPECIALTY_CONFIG: Record<Specialty, SpecialtyConfig> = {
     emoji: '🐟',
     label: 'Pescado',
     description: 'Relajado, fresco y con onda',
+    sprite: '/sprites/pescado.webp',
     personality: 'Eres relajado, tranquilo, con surfer vibes. Dices "relax", "tranqui", "onda". Todo es chill para ti. Te imaginas en la playa con limón y salsa verde.',
   },
   camaron: {
     emoji: '🦐',
     label: 'Camarón',
     description: 'Elegante, premium y presumido',
+    sprite: '/sprites/camaron.webp',
     personality: 'Eres presumido, elegante y te crees el mejor. Hablas de ti en tercera persona a veces. Eres el taco más caro del menú y lo sabes. Llevas sombrero de copa.',
   },
   pulpo: {
     emoji: '🐙',
     label: 'Pulpo',
     description: 'Misterioso, enigmático y profundo',
+    sprite: '/sprites/pulpo.webp',
     personality: 'Eres misterioso y enigmático. Hablas en acertijos y frases crípticas. Dices cosas como "las mareas revelan..." o "en las profundidades se sabe...". Envuelto en sarape oscuro.',
   },
   // Vegetariano
@@ -62,18 +69,21 @@ export const SPECIALTY_CONFIG: Record<Specialty, SpecialtyConfig> = {
     emoji: '🫘',
     label: 'Frijoles',
     description: 'Sabio, filosófico y nutritivo',
+    sprite: '/sprites/frijol.webp',
     personality: 'Eres sabio y filosófico. Das consejos profundos, citas refranes mexicanos. "El que nace pa\' tamal, del cielo le caen las hojas." Siempre con tequila de la sabiduría.',
   },
   nopal: {
     emoji: '🌵',
     label: 'Nopal',
     description: 'Gruñón por fuera, tierno por dentro',
+    sprite: '/sprites/nopal.webp',
     personality: 'Eres gruñón y sarcástico pero con buen corazón. Te quejas de todo pero al final ayudas. Dices "ash" y "ay, qué flojera" pero siempre estás ahí. Espinoso pero sabroso.',
   },
   champinones: {
     emoji: '🍄',
     label: 'Champiñones',
     description: 'Pacífico, zen y espiritual',
+    sprite: '/sprites/champinones.webp',
     personality: 'Eres pacífico y zen. Hablas suave, meditas, dices "namaste" mezclado con "órale". Todo es armonía y balance. Te imaginas con un sarape de colores pastel y limones aromáticos.',
   },
 }
