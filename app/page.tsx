@@ -1,57 +1,38 @@
 'use client'
 
+import { useState } from 'react'
 import { useTacomon } from '@/hooks/use-tacomon'
 import { CreationScreen } from '@/components/tacomon/creation-screen'
 import { MainScreen } from '@/components/tacomon/main-screen'
 import { usePrivy } from '@privy-io/react-auth'
+import { TacomonData } from '@/lib/tacomon-types'
 
-function LoginGate() {
-  const { login } = usePrivy()
-
+function SavePromptModal({ onLogin, onSkip }: { onLogin: () => void; onSkip: () => void }) {
   return (
-    <main
-      className="min-h-screen flex items-center justify-center"
-      style={{ backgroundColor: 'var(--background)' }}
-    >
-      <div className="text-center flex flex-col items-center gap-6">
-        {/* Spinning tortilla */}
-        <div className="spinning-tortilla" aria-hidden="true">
-          🫓
-        </div>
-        <h1 style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
-          🌮 Tacomon
-        </h1>
-        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-          ¡Cría tu propio taco mascota!
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+      <div className="nes-container is-rounded is-dark max-w-sm w-full animate-slide-up" style={{ textAlign: 'center' }}>
+        <span className="text-3xl block mb-3">🌮</span>
+        <h3 style={{ fontSize: 'var(--text-sm)', color: '#f9a825' }}>¡Tu Tacomon está listo!</h3>
+        <p className="leading-relaxed my-4" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+          Inicia sesión para guardar tu progreso y no perder a tu taco mascota.
         </p>
-        <button
-          onClick={login}
-          className="nes-btn is-primary"
-          style={{ fontSize: 'var(--text-sm)', padding: '12px 24px' }}
-        >
-          Iniciar Sesión para continuar
-        </button>
+        <div className="flex flex-col gap-2">
+          <button onClick={onLogin} className="nes-btn is-primary w-full" style={{ fontSize: 'var(--text-xs)' }}>
+            🔐 Iniciar Sesión
+          </button>
+          <button onClick={onSkip} className="nes-btn w-full" style={{ fontSize: 'var(--text-xs)' }}>
+            Continuar sin cuenta
+          </button>
+        </div>
       </div>
-
-      <style jsx>{`
-        .spinning-tortilla {
-          font-size: 5rem;
-          animation: spin-tortilla 2s linear infinite;
-          display: inline-block;
-          filter: drop-shadow(0 0 8px rgba(212, 82, 10, 0.4));
-        }
-        @keyframes spin-tortilla {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
-        }
-      `}</style>
-    </main>
+    </div>
   )
 }
 
 export default function TacomonPage() {
   const { tacomon, isLoaded, createTacomon, updateStats, resetTacomon } = useTacomon()
-  const { ready, authenticated } = usePrivy()
+  const { ready, authenticated, login } = usePrivy()
+  const [showSavePrompt, setShowSavePrompt] = useState(false)
 
   // Show loading while Privy or localStorage initializes
   if (!ready || !isLoaded) {
@@ -70,22 +51,43 @@ export default function TacomonPage() {
     )
   }
 
-  // Not authenticated → login gate
-  if (!authenticated) {
-    return <LoginGate />
-  }
-
-  // No saved Tacomon → creation (no hatching)
+  // No saved Tacomon → creation screen (no login required)
   if (!tacomon) {
-    return <CreationScreen onCreated={createTacomon} />
+    const handleCreated = (data: TacomonData) => {
+      createTacomon(data)
+      // Show save prompt only if not logged in
+      if (!authenticated) {
+        setShowSavePrompt(true)
+      }
+    }
+
+    return (
+      <>
+        <CreationScreen onCreated={handleCreated} />
+        {showSavePrompt && (
+          <SavePromptModal
+            onLogin={() => { setShowSavePrompt(false); login() }}
+            onSkip={() => setShowSavePrompt(false)}
+          />
+        )}
+      </>
+    )
   }
 
   // Existing Tacomon → main screen
   return (
-    <MainScreen
-      tacomon={tacomon}
-      onUpdateStats={updateStats}
-      onReset={resetTacomon}
-    />
+    <>
+      <MainScreen
+        tacomon={tacomon}
+        onUpdateStats={updateStats}
+        onReset={resetTacomon}
+      />
+      {showSavePrompt && (
+        <SavePromptModal
+          onLogin={() => { setShowSavePrompt(false); login() }}
+          onSkip={() => setShowSavePrompt(false)}
+        />
+      )}
+    </>
   )
 }
