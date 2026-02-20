@@ -1,0 +1,321 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'nes.css/css/nes.min.css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #fdf6e3;
+  --foreground: #2d1b00;
+  --card: #fff8e7;
+  --card-foreground: #2d1b00;
+  --popover: #fff8e7;
+  --popover-foreground: #2d1b00;
+  --primary: #d4520a;
+  --primary-foreground: #fdf6e3;
+  --secondary: #f5e6c8;
+  --secondary-foreground: #2d1b00;
+  --muted: #f0dcc0;
+  --muted-foreground: #7a6140;
+  --accent: #2e7d32;
+  --accent-foreground: #fdf6e3;
+  --destructive: #c62828;
+  --destructive-foreground: #fdf6e3;
+  --border: #2d1b00;
+  --input: #f5e6c8;
+  --ring: #d4520a;
+  --chart-1: #2e7d32;
+  --chart-2: #f9a825;
+  --chart-3: #c62828;
+  --chart-4: #1565c0;
+  --chart-5: #d4520a;
+  --radius: 0px;
+
+  --taco-green: #4caf50;
+  --taco-green-bg: #e8f5e9;
+  --taco-blue: #1e88e5;
+  --taco-blue-bg: #e3f2fd;
+  --taco-red: #e53935;
+  --taco-red-bg: #ffebee;
+  --taco-gold: #f9a825;
+  --taco-gold-bg: #fff8e1;
+}
+
+@theme inline {
+  --font-sans: var(--font-press-start), 'Press Start 2P', monospace;
+  --font-mono: var(--font-press-start), 'Press Start 2P', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius));
+  --radius-md: calc(var(--radius));
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius));
+  --color-taco-green: var(--taco-green);
+  --color-taco-green-bg: var(--taco-green-bg);
+  --color-taco-blue: var(--taco-blue);
+  --color-taco-blue-bg: var(--taco-blue-bg);
+  --color-taco-red: var(--taco-red);
+  --color-taco-red-bg: var(--taco-red-bg);
+  --color-taco-gold: var(--taco-gold);
+  --color-taco-gold-bg: var(--taco-gold-bg);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-press-start), 'Press Start 2P', monospace;
+    image-rendering: pixelated;
+  }
+}
+
+/* NES.css overrides for our theme */
+.nes-container {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
+}
+
+.nes-container.is-dark {
+  background-color: var(--foreground) !important;
+  color: var(--background) !important;
+}
+
+.nes-container.with-title > .title {
+  background-color: var(--card) !important;
+  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
+}
+
+.nes-btn {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
+}
+
+.nes-btn.is-primary {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+
+.nes-btn.is-success {
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+}
+
+.nes-btn.is-warning {
+  background-color: var(--taco-gold) !important;
+  color: var(--foreground) !important;
+}
+
+.nes-btn.is-error {
+  background-color: var(--destructive) !important;
+  color: var(--destructive-foreground) !important;
+}
+
+.nes-btn.is-disabled,
+.nes-btn[disabled] {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.nes-input,
+.nes-textarea {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace !important;
+  background-color: var(--input) !important;
+  color: var(--foreground) !important;
+}
+
+.nes-progress {
+  height: 24px !important;
+}
+
+/* Pixel art rendering for sprites */
+.pixel-sprite {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Bounce animation for sprites */
+@keyframes taco-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes taco-idle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(-2deg); }
+  75% { transform: translateY(-4px) rotate(2deg); }
+}
+
+@keyframes egg-shake {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(-10deg); }
+  20% { transform: rotate(10deg); }
+  30% { transform: rotate(-10deg); }
+  40% { transform: rotate(10deg); }
+  50% { transform: rotate(0deg); }
+}
+
+@keyframes egg-crack {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes sparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1) rotate(180deg); opacity: 1; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 82, 10, 0.4); }
+  50% { box-shadow: 0 0 20px 10px rgba(212, 82, 10, 0.2); }
+}
+
+@keyframes float-hearts {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+}
+
+.animate-taco-bounce {
+  animation: taco-bounce 1s ease-in-out infinite;
+}
+
+.animate-taco-idle {
+  animation: taco-idle 3s ease-in-out infinite;
+}
+
+.animate-egg-shake {
+  animation: egg-shake 1.5s ease-in-out infinite;
+}
+
+.animate-egg-crack {
+  animation: egg-crack 1s ease-in-out forwards;
+}
+
+.animate-sparkle {
+  animation: sparkle 0.8s ease-in-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-float-hearts {
+  animation: float-hearts 1.5s ease-out forwards;
+}
+
+/* Hover micro-interactions */
+.pet-area {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.pet-area:hover {
+  transform: scale(1.05);
+}
+
+.pet-area:active {
+  transform: scale(0.95);
+}
+
+/* Stat bar custom styles */
+.stat-bar-green .nes-progress {
+  --progress-color: var(--taco-green);
+}
+
+.stat-bar-yellow .nes-progress {
+  --progress-color: var(--taco-gold);
+}
+
+.stat-bar-red .nes-progress {
+  --progress-color: var(--taco-red);
+}
+
+/* Type selection cards */
+.type-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 4px solid transparent;
+}
+
+.type-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 0 var(--foreground);
+}
+
+.type-card.selected {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 0 var(--primary);
+}
+
+/* Smooth transitions for all interactive elements */
+button, .nes-btn, input, .type-card {
+  transition: all 0.2s ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border: 2px solid var(--foreground);
+}
+
+/* Gender selection */
+.gender-option {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 3px solid transparent;
+  padding: 8px 16px;
+}
+
+.gender-option:hover {
+  transform: scale(1.05);
+}
+
+.gender-option.selected {
+  border-color: var(--primary);
+  background-color: var(--secondary);
+}
