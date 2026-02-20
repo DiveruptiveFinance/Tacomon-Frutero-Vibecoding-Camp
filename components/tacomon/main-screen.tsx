@@ -153,7 +153,7 @@ function InsufficientTooltip({ show }: { show: boolean }) {
 /* ── Main Screen ── */
 interface MainScreenProps {
   tacomon: TacomonData
-  onUpdateStats: (stat: 'happiness' | 'energy' | 'hunger', amount: number) => void
+  onUpdateStats: (stat: 'happiness' | 'energy' | 'hunger', amount: number, setCooldown?: boolean) => void
   onReset: () => void
 }
 
@@ -230,7 +230,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
         spawnSalsa('-10 🍅', '#e8762e')
 
         const statMap = { alimentar: 'hunger' as const, jugar: 'energy' as const, charlar: 'happiness' as const }
-        onUpdateStats(statMap[actionType], 15)
+        onUpdateStats(statMap[actionType], 15, true)
 
         const msgs = {
           alimentar: '¡Qué rico taco! Gracias por la salsa 😋',
@@ -361,7 +361,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               <div className="flex flex-col gap-3">
                 <StatBar label="Felicidad" emoji="💚" value={tacomon.happiness} maxValue={100} color="var(--taco-green)" bgColor="var(--taco-green-bg)" />
                 <StatBar label="Energía" emoji="⚡" value={tacomon.energy} maxValue={100} color="var(--taco-gold)" bgColor="var(--taco-gold-bg)" />
-                <StatBar label="Hambre" emoji="🍎" value={tacomon.hunger} maxValue={100} color="var(--taco-red)" bgColor="var(--taco-red-bg)" />
+                <StatBar label="Saciedad" emoji="🍎" value={tacomon.hunger} maxValue={100} color="var(--taco-red)" bgColor="var(--taco-red-bg)" />
               </div>
             </div>
 

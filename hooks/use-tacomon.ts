@@ -40,22 +40,21 @@ export function useTacomon() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
   }, [])
 
-  const updateStats = useCallback((stat: 'happiness' | 'energy' | 'hunger', amount: number) => {
+  const updateStats = useCallback((stat: 'happiness' | 'energy' | 'hunger', amount: number, setCooldown?: boolean) => {
     setTacomon((prev) => {
       if (!prev) return prev
       const newValue = Math.min(100, Math.max(0, prev[stat] + amount))
-      const now = new Date().toISOString()
 
-      let lastKey: 'lastFed' | 'lastChatted' | 'lastPlayed'
-      if (stat === 'hunger') lastKey = 'lastFed'
-      else if (stat === 'happiness') lastKey = 'lastChatted'
-      else lastKey = 'lastPlayed'
+      const updated = { ...prev, [stat]: newValue }
 
-      const updated = {
-        ...prev,
-        [stat]: newValue,
-        [lastKey]: now,
+      // Only set cooldown timestamp when explicitly requested (from action buttons)
+      if (setCooldown) {
+        const now = new Date().toISOString()
+        if (stat === 'hunger') updated.lastFed = now
+        else if (stat === 'happiness') updated.lastChatted = now
+        else if (stat === 'energy') updated.lastPlayed = now
       }
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })

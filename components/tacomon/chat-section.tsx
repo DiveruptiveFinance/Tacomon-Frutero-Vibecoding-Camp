@@ -12,7 +12,7 @@ interface ChatMessage {
 
 interface ChatSectionProps {
   tacomon: TacomonData
-  onUpdateStats: (stat: 'happiness' | 'energy' | 'hunger', amount: number) => void
+  onUpdateStats: (stat: 'happiness' | 'energy' | 'hunger', amount: number, setCooldown?: boolean) => void
   className?: string
 }
 
@@ -152,13 +152,14 @@ export function ChatSection({ tacomon, onUpdateStats, className }: ChatSectionPr
       </div>
 
       <div
-        className="modern-card flex flex-col flex-1"
-        style={{ padding: '12px', minHeight: '300px' }}
+        className="modern-card flex flex-col"
+        style={{ padding: '12px' }}
       >
-        {/* Messages area - fills available space */}
+        {/* Messages area - fixed height with scroll */}
         <div
           ref={scrollRef}
-          className="overflow-y-auto mb-2 space-y-2 flex-1"
+          className="overflow-y-auto mb-2 space-y-2"
+          style={{ height: '250px', minHeight: '250px', maxHeight: '250px' }}
         >
           {messages.length === 0 && (
             <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', padding: '16px 0' }}>
