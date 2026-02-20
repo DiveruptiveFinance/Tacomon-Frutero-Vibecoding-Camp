@@ -13,6 +13,7 @@ import { TacodexModal } from './tacodex-modal'
 import { useSalsa } from '@/hooks/use-salsa'
 import type { SalsaHistoryEntry } from '@/hooks/use-salsa'
 import { usePrivy } from '@privy-io/react-auth'
+import { useTheme } from 'next-themes'
 import type { QuizQuestion } from '@/lib/tacomon-types'
 
 /* ── Floating salsa text component ── */
@@ -175,6 +176,8 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
   const { spawn: spawnSalsa, Layer: SalsaLayer } = useSalsaFloats()
   const { balance, streak, history, deductSalsa } = useSalsa()
   const { login, logout, authenticated, user } = usePrivy()
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
   const config = TACO_CONFIG[tacomon.type]
   const specialtyConfig = tacomon.specialty ? SPECIALTY_CONFIG[tacomon.specialty] : null
 
@@ -491,13 +494,43 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
 
       {/* Reset Confirmation */}
       {showResetConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
-          <div className="nes-container is-rounded is-dark max-w-sm w-full animate-slide-up" style={{ textAlign: 'center' }}>
-            <span className="text-2xl">⚠️</span>
-            <h3 className="mt-2" style={{ fontSize: 'var(--text-sm)', color: '#e53935' }}>¡Cuidado!</h3>
-            <p className="leading-relaxed my-4" style={{ fontSize: 'var(--text-xs)' }}>
-              ¿Estás seguro? Perderás a <span style={{ color: config.color }}>{tacomon.name}</span> y todo su progreso.
-            </p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: isDark ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.5)' }}
+        >
+          <div
+            className="max-w-sm w-full animate-slide-up"
+            style={{
+              backgroundColor: 'var(--background)',
+              borderRadius: '20px',
+              border: isDark ? '3px solid rgba(255,255,255,0.15)' : '3px solid rgba(0,0,0,0.12)',
+              boxShadow: isDark
+                ? '0 12px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)'
+                : '0 12px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05)',
+              padding: '24px 20px',
+              textAlign: 'center' as const,
+            }}
+          >
+            <span className="text-3xl block mb-3">⚠️</span>
+            <div style={{
+              backgroundColor: isDark ? 'rgba(229,57,53,0.15)' : 'rgba(229,57,53,0.08)',
+              border: isDark ? '2px solid rgba(229,57,53,0.3)' : '2px solid rgba(229,57,53,0.2)',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              marginBottom: '16px',
+            }}>
+              <h3 style={{
+                fontSize: 'var(--text-sm)',
+                color: '#e53935',
+                fontFamily: 'var(--font-press-start)',
+                marginBottom: '8px',
+              }}>
+                ¡Cuidado!
+              </h3>
+              <p style={{ fontSize: 'var(--text-xs)', color: isDark ? '#fdf6e3' : '#2d2d2d', lineHeight: 1.5 }}>
+                ¿Estás seguro? Perderás a <span style={{ color: config.color, fontWeight: 700 }}>{tacomon.name}</span> y todo su progreso.
+              </p>
+            </div>
             <div className="flex gap-2">
               <button onClick={() => setShowResetConfirm(false)} className="nes-btn flex-1" style={{ fontSize: 'var(--text-xs)' }}>
                 Cancelar
