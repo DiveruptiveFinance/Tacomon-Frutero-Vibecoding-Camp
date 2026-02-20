@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Press_Start_2P } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { ThemeProvider } from '@/components/theme-provider'
+import { Providers } from './providers'
 import './globals.css'
 
 const pressStart2P = Press_Start_2P({
@@ -50,9 +50,9 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${pressStart2P.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="tacomon-theme">
+        <Providers>
           {children}
-        </ThemeProvider>
+        </Providers>
         <Analytics />
       </body>
     </html>

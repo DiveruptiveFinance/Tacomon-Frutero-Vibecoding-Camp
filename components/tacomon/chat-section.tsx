@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { TacomonData } from '@/lib/tacomon-types'
+import { useSalsa } from '@/hooks/use-salsa'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -34,6 +35,7 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
   const [isOpen, setIsOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const floatIdRef = useRef(0)
+  const { earnFromChat } = useSalsa()
 
   useEffect(() => {
     try {
@@ -86,6 +88,12 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
 
     onUpdateStats('happiness', 5)
     addFloatingText('+5 💚')
+
+    // Earn $SALSA from chatting
+    const earned = earnFromChat()
+    if (earned > 0) {
+      setTimeout(() => addFloatingText(`+${earned} 🍅 $SALSA`), 150)
+    }
     
     setTimeout(() => {
       onUpdateStats('energy', -3)

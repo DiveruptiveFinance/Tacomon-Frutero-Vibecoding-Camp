@@ -9,6 +9,8 @@ import { QuizModal } from './quiz-modal'
 import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
 import { ChatSection } from './chat-section'
+import { useSalsa } from '@/hooks/use-salsa'
+import { usePrivy } from '@privy-io/react-auth'
 import type { QuizQuestion } from '@/lib/tacomon-types'
 
 interface MainScreenProps {
@@ -33,8 +35,15 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
     charlar: 0,
     jugar: 0,
   })
+  const [actionBlocked, setActionBlocked] = useState<{ alimentar: boolean; jugar: boolean }>({
+    alimentar: false,
+    jugar: false,
+  })
+  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null)
 
   const { spawnHearts, HeartsLayer } = useFloatingHearts()
+  const { balance, deductSalsa } = useSalsa()
+  const { login, logout, authenticated, user } = usePrivy()
   const config = TACO_CONFIG[tacomon.type]
   const specialtyConfig = tacomon.specialty ? SPECIALTY_CONFIG[tacomon.specialty] : null
 
@@ -70,26 +79,56 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
     return () => clearInterval(interval)
   }, [tacomon.lastFed, tacomon.lastChatted, tacomon.lastPlayed])
 
-  const handleAction = useCallback((actionType: 'alimentar' | 'charlar' | 'jugar') => {
+  const handleAction = useCallback((actionType: 'alimentar' | 'jugar') => {
     if (cooldowns[actionType]) return
+    if (actionBlocked[actionType]) return
+    if (balance < 10) {
+      setFeedbackMsg('❌ No tienes suficiente $SALSA (mínimo 10 🍅)')
+      setTimeout(() => setFeedbackMsg(null), 3000)
+      return
+    }
     const question = getRandomQuestion(actionType)
     setActiveQuiz({ question, actionType })
-  }, [cooldowns])
+  }, [cooldowns, actionBlocked, balance])
 
   const handleQuizResult = useCallback((correct: boolean) => {
     if (!activeQuiz) return
-    const amount = correct ? 15 : 5
-    const statMap = {
-      alimentar: 'hunger' as const,
-      charlar: 'happiness' as const,
-      jugar: 'energy' as const,
-    }
+    const { actionType } = activeQuiz
 
-    setTimeout(() => {
-      onUpdateStats(statMap[activeQuiz.actionType], amount)
-      setActiveQuiz(null)
-    }, 500)
-  }, [activeQuiz, onUpdateStats])
+    if (correct) {
+      deductSalsa(10)
+      const statMap = {
+        alimentar: 'hunger' as const,
+        jugar: 'energy' as const,
+        charlar: 'happiness' as const,
+      }
+      const amount = 15
+      const msgs = {
+        alimentar: '¡Qué rico taco! Gracias por la salsa 😋',
+        jugar: '¡Gran jugada! Tu Tacomon está feliz ⚡😋',
+        charlar: '¡Buena charla!',
+      }
+      setTimeout(() => {
+        onUpdateStats(statMap[actionType], amount)
+        setFeedbackMsg(msgs[actionType])
+        setTimeout(() => setFeedbackMsg(null), 3000)
+        setActiveQuiz(null)
+      }, 500)
+    } else {
+      // Block action for 30 seconds
+      setFeedbackMsg('❌ ¡Error! Intenta más tarde')
+      setTimeout(() => setFeedbackMsg(null), 3000)
+      if (actionType === 'alimentar' || actionType === 'jugar') {
+        setActionBlocked(prev => ({ ...prev, [actionType]: true }))
+        setTimeout(() => {
+          setActionBlocked(prev => ({ ...prev, [actionType]: false }))
+        }, 30000)
+      }
+      setTimeout(() => {
+        setActiveQuiz(null)
+      }, 500)
+    }
+  }, [activeQuiz, onUpdateStats, deductSalsa])
 
   const handleReset = useCallback(() => {
     setShowResetConfirm(true)
@@ -110,7 +149,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
     <main className="min-h-screen flex flex-col" style={{ backgroundColor: config.bgColor }}>
       {/* Header */}
       <header
-        className="flex items-center justify-between px-4 md:px-6 py-3"
+        className="flex items-center justify-between px-4 md:px-6 py-3 flex-wrap gap-2"
         style={{
           backgroundColor: 'var(--card)',
           borderBottom: '1px solid var(--border)',
@@ -120,7 +159,37 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
         <h1 style={{ fontSize: 'var(--text-base)', color: 'var(--foreground)' }}>
           {'\u{1F32E} Tacomon'}
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Salsa Balance */}
+          <span
+            className="nes-badge"
+            style={{ fontSize: 'var(--text-xs)', whiteSpace: 'nowrap' }}
+          >
+            <span className="is-warning">🍅 {balance} $SALSA</span>
+          </span>
+          {/* Auth */}
+          {authenticated && user ? (
+            <div className="flex items-center gap-2">
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+                {user.email?.address || user.google?.email || user.id.slice(0, 10)}
+              </span>
+              <button
+                onClick={logout}
+                className="nes-btn is-error"
+                style={{ fontSize: 'var(--text-xs)', padding: '4px 8px' }}
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={login}
+              className="nes-btn is-primary"
+              style={{ fontSize: 'var(--text-xs)', padding: '4px 8px' }}
+            >
+              Iniciar Sesión
+            </button>
+          )}
           <ThemeToggle />
           <button
             onClick={handleReset}
@@ -226,24 +295,40 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             <div className="grid grid-cols-2 gap-2 md:gap-3 w-full">
               <button
                 onClick={() => handleAction('alimentar')}
-                disabled={cooldowns.alimentar}
-                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'btn-disabled' : 'btn-danger'}`}
-                style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-red)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
+                disabled={cooldowns.alimentar || actionBlocked.alimentar}
+                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar || actionBlocked.alimentar ? 'btn-disabled' : 'btn-danger'}`}
+                style={{ cursor: cooldowns.alimentar || actionBlocked.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-red)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
               >
                 <span className="text-base md:text-lg">{'\u{1F34E}'}</span>
-                <span>{'Alimentar'}</span>
+                <span>{'Alimentar (10 🍅)'}</span>
               </button>
 
               <button
                 onClick={() => handleAction('jugar')}
-                disabled={cooldowns.jugar}
-                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'btn-disabled' : 'btn-warning'}`}
-                style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-gold)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
+                disabled={cooldowns.jugar || actionBlocked.jugar}
+                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar || actionBlocked.jugar ? 'btn-disabled' : 'btn-warning'}`}
+                style={{ cursor: cooldowns.jugar || actionBlocked.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-gold)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
               >
                 <span className="text-base md:text-lg">{'\u{26A1}'}</span>
-                <span>{'Jugar'}</span>
+                <span>{'Jugar (10 🍅)'}</span>
               </button>
             </div>
+
+            {/* Feedback Message */}
+            {feedbackMsg && (
+              <div
+                className="text-center w-full animate-slide-up"
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: feedbackMsg.startsWith('❌') ? 'var(--taco-red)' : 'var(--taco-green)',
+                  padding: '8px',
+                  backgroundColor: feedbackMsg.startsWith('❌') ? 'var(--taco-red-bg)' : 'var(--taco-green-bg)',
+                  borderRadius: '8px',
+                }}
+              >
+                {feedbackMsg}
+              </div>
+            )}
 
             {/* Cooldown Timer */}
             {(cooldowns.alimentar || cooldowns.jugar) && (

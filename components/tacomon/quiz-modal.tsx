@@ -14,8 +14,8 @@ const ACTION_CONFIG = {
   alimentar: {
     title: 'Hora de Comer!',
     emoji: '\u{1F34E}',
-    correctMsg: 'Respuesta correcta! Tu Tacomon come con gusto!',
-    wrongMsg: 'Respuesta incorrecta... Tu Tacomon come un poquito.',
+    correctMsg: '¡Qué rico taco! Gracias por la salsa 😋 (-10 🍅)',
+    wrongMsg: '❌ ¡Error! Intenta más tarde (bloqueado 30s)',
     color: 'var(--taco-red)',
     bgColor: 'var(--taco-red-bg)',
   },
@@ -30,8 +30,8 @@ const ACTION_CONFIG = {
   jugar: {
     title: 'Hora de Jugar!',
     emoji: '\u{26A1}',
-    correctMsg: 'Respuesta correcta! Tu Tacomon gana mucha energia!',
-    wrongMsg: 'Respuesta incorrecta... Pero se ejercito un poco.',
+    correctMsg: '¡Gran jugada! Tu Tacomon gana mucha energía 😋 (-10 🍅)',
+    wrongMsg: '❌ ¡Error! Intenta más tarde (bloqueado 30s)',
     color: 'var(--taco-gold)',
     bgColor: 'var(--taco-gold-bg)',
   },
