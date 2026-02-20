@@ -328,7 +328,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
         </div>
 
         {/* 2-column layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:items-stretch">
           {/* LEFT: Sprite + Stats + Actions */}
           <div className="flex flex-col items-center gap-4">
             {/* Sprite */}
@@ -420,8 +420,8 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
           </div>
 
           {/* RIGHT: Chat + History */}
-          <div className="flex flex-col gap-4">
-            <ChatSection tacomon={tacomon} onUpdateStats={onUpdateStats} />
+          <div className="flex flex-col gap-4 md:h-full">
+            <ChatSection tacomon={tacomon} onUpdateStats={onUpdateStats} className="flex-1" />
 
             {/* Historial */}
             <HistorialPanel history={history} />

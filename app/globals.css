@@ -343,6 +343,13 @@
 .animate-float-hearts { animation: float-hearts 1.5s ease-out forwards; }
 .animate-bounce-in { animation: bounce-in 0.4s ease-out; }
 .animate-float-up { animation: float-up 1.5s ease-out forwards; }
+.animate-stat-delta { animation: stat-delta 1.5s ease-out forwards; }
+
+@keyframes stat-delta {
+  0% { opacity: 1; transform: translateY(0); }
+  70% { opacity: 1; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
 .animate-salsa-float { animation: salsa-float 1.8s ease-out forwards; }
 
 @keyframes salsa-float {

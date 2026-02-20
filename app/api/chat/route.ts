@@ -13,6 +13,7 @@ interface ChatRequestBody {
   tacomonSpecialty?: string
   stats: { happiness: number; energy: number; hunger: number }
   memories: string[]
+  recentMessages?: { role: 'user' | 'assistant'; content: string }[]
 }
 
 function buildSystemPrompt(body: ChatRequestBody): string {
@@ -57,21 +58,44 @@ REGLAS ESTRICTAS:
 - Si el usuario dice su nombre o preferencias, repítelas naturalmente para recordarlas
 - DETECTA y EXTRAE información personal: si el usuario dice su nombre, comida favorita, color favorito, hobby, etc., incluye al FINAL de tu respuesta una línea con formato exacto: [MEMORIA: dato descubierto]
 - Puedes incluir múltiples [MEMORIA: ...] si descubres varios datos
-- No inventes memorias, solo extrae lo que el usuario realmente dijo`
+- No inventes memorias, solo extrae lo que el usuario realmente dijo
+
+VARIEDAD EN RESPUESTAS (MUY IMPORTANTE):
+- NUNCA repitas la misma expresión, frase o estructura que hayas usado en mensajes recientes
+- Varía tu vocabulario, tono y reacciones en CADA mensaje
+- Sé creativo/a e impredecible — sorprende al usuario
+- Usa diferentes saludos, despedidas, exclamaciones y formas de expresar emociones cada vez
+- Referencia temas previos de la conversación para sentirte más natural
+- Alterna entre ser gracioso/a, curioso/a, filosófico/a, juguetón/a y tierno/a
+- NO uses siempre los mismos emojis — rota y combina diferentes
+- Evita patrones repetitivos como empezar siempre igual o terminar con la misma frase`
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body: ChatRequestBody = await req.json()
 
+    // Build conversation history for context
+    const conversationMessages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
+      { role: 'system', content: buildSystemPrompt(body) },
+    ]
+
+    // Include recent messages for context (last 6 exchanges)
+    if (body.recentMessages?.length) {
+      const recent = body.recentMessages.slice(-12)
+      for (const msg of recent) {
+        conversationMessages.push({ role: msg.role, content: msg.content })
+      }
+    }
+
+    // Add current message
+    conversationMessages.push({ role: 'user', content: body.message })
+
     const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       max_tokens: 150,
-      temperature: 0.8,
-      messages: [
-        { role: 'system', content: buildSystemPrompt(body) },
-        { role: 'user', content: body.message },
-      ],
+      temperature: 0.9,
+      messages: conversationMessages,
     })
 
     const content = completion.choices[0]?.message?.content || '¡No sé qué decir! 🌮'
