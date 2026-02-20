@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { TacomonData } from '@/lib/tacomon-types'
+import { SPECIALTIES_BY_TYPE } from '@/lib/tacomon-types'
 
 const STORAGE_KEY = 'tacomon-data'
 
@@ -15,10 +16,13 @@ export function useTacomon() {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
         const parsed = JSON.parse(saved) as TacomonData
+        // Backward compat: assign default specialty if missing
+        if (!parsed.specialty && parsed.type) {
+          parsed.specialty = SPECIALTIES_BY_TYPE[parsed.type][0]
+        }
         setTacomon(parsed)
       }
     } catch {
-      // If data is corrupted, just start fresh
       localStorage.removeItem(STORAGE_KEY)
     }
     setIsLoaded(true)

@@ -4,9 +4,12 @@ import { useState, useCallback } from 'react'
 import {
   TacoType,
   Gender,
+  Specialty,
   TacomonData,
   TACO_CONFIG,
   NAME_SUGGESTIONS,
+  SPECIALTIES_BY_TYPE,
+  SPECIALTY_CONFIG,
 } from '@/lib/tacomon-types'
 import { HatchingScene } from './hatching-scene'
 import { ThemeToggle } from './theme-toggle'
@@ -19,11 +22,12 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
   const [name, setName] = useState('')
   const [selectedType, setSelectedType] = useState<TacoType | null>(null)
   const [selectedGender, setSelectedGender] = useState<Gender | null>(null)
+  const [selectedSpecialty, setSelectedSpecialty] = useState<Specialty | null>(null)
   const [isHatching, setIsHatching] = useState(false)
   const [createdData, setCreatedData] = useState<TacomonData | null>(null)
 
   const isNameValid = name.trim().length >= 2 && name.trim().length <= 10
-  const canCreate = isNameValid && selectedType !== null && selectedGender !== null
+  const canCreate = isNameValid && selectedType !== null && selectedGender !== null && selectedSpecialty !== null
 
   const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -32,13 +36,19 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
     }
   }, [])
 
+  const handleTypeSelect = useCallback((type: TacoType) => {
+    setSelectedType(type)
+    setSelectedSpecialty(null) // Reset specialty when type changes
+  }, [])
+
   const handleCreate = useCallback(() => {
-    if (!canCreate || !selectedType || !selectedGender) return
+    if (!canCreate || !selectedType || !selectedGender || !selectedSpecialty) return
 
     const data: TacomonData = {
       name: name.trim(),
       type: selectedType,
       gender: selectedGender,
+      specialty: selectedSpecialty,
       happiness: 50,
       energy: 50,
       hunger: 50,
@@ -50,7 +60,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
 
     setCreatedData(data)
     setIsHatching(true)
-  }, [canCreate, name, selectedType, selectedGender])
+  }, [canCreate, name, selectedType, selectedGender, selectedSpecialty])
 
   const handleHatchComplete = useCallback(() => {
     if (createdData) {
@@ -72,17 +82,17 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
       </div>
 
       {/* Title */}
-      <div className="nes-container is-rounded mb-6 md:mb-8 text-center w-full max-w-lg">
+      <div className="nes-container is-rounded wood-container mb-6 md:mb-8 text-center w-full max-w-lg">
         <h1 className="leading-relaxed" style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
-          {'Crea tu Tacomon'}
+          {'🌮 Crea tu Tacomon'}
         </h1>
         <p className="mt-2" style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-          {'Elige un nombre, tipo y genero para tu taco'}
+          {'Elige un nombre, tipo, especialidad y género para tu taco'}
         </p>
       </div>
 
       {/* Name Input Section */}
-      <div className="nes-container with-title is-rounded w-full max-w-lg mb-6">
+      <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6">
         <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Nombre'}</p>
         <div className="flex flex-col gap-3">
           <input
@@ -138,14 +148,14 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
       </div>
 
       {/* Type Selection */}
-      <div className="nes-container with-title is-rounded w-full max-w-lg mb-6">
+      <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6">
         <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Tipo de Taco'}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {(Object.entries(TACO_CONFIG) as [TacoType, typeof TACO_CONFIG[TacoType]][]).map(
             ([type, config]) => (
               <button
                 key={type}
-                onClick={() => setSelectedType(type)}
+                onClick={() => handleTypeSelect(type)}
                 className={`type-card nes-container is-rounded p-3 text-center ${selectedType === type ? 'selected' : ''}`}
                 style={{
                   backgroundColor: selectedType === type ? config.bgColor : 'var(--card)',
@@ -173,8 +183,47 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
         </div>
       </div>
 
+      {/* Specialty Selection - only show after type is selected */}
+      {selectedType && (
+        <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6 animate-slide-up">
+          <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'🌶️ Especialidad'}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {SPECIALTIES_BY_TYPE[selectedType].map((spec) => {
+              const cfg = SPECIALTY_CONFIG[spec]
+              return (
+                <button
+                  key={spec}
+                  onClick={() => setSelectedSpecialty(spec)}
+                  className={`type-card nes-container is-rounded p-3 text-center ${selectedSpecialty === spec ? 'selected' : ''}`}
+                  style={{
+                    backgroundColor: selectedSpecialty === spec ? 'var(--taco-pink-bg)' : 'var(--card)',
+                    color: 'var(--foreground)',
+                    borderColor: selectedSpecialty === spec ? 'var(--taco-pink)' : 'transparent',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span className="text-2xl block mb-2">{cfg.emoji}</span>
+                  <span className="block leading-relaxed" style={{ fontSize: 'var(--text-xs)', color: 'var(--taco-amarillo)' }}>{cfg.label}</span>
+                  <span
+                    className="block mt-1 leading-relaxed"
+                    style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}
+                  >
+                    {cfg.description}
+                  </span>
+                  {selectedSpecialty === spec && (
+                    <span className="block mt-2" style={{ fontSize: 'var(--text-xs)', color: 'var(--taco-pink)' }}>
+                      {'✨ Seleccionado!'}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Gender Selection */}
-      <div className="nes-container with-title is-rounded w-full max-w-lg mb-6">
+      <div className="nes-container with-title is-rounded wood-container w-full max-w-lg mb-6">
         <p className="title" style={{ fontSize: 'var(--text-sm)' }}>{'Genero'}</p>
         <div className="flex gap-4 justify-center">
           <button
@@ -217,7 +266,7 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
             fontSize: 'var(--text-base)',
           }}
         >
-          {'Cocinar!'}
+          {'🔥 Cocinar!'}
         </button>
         {!canCreate && (
           <p className="text-center mt-2" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
@@ -227,7 +276,9 @@ export function CreationScreen({ onCreated }: CreationScreenProps) {
                 ? 'El nombre debe tener entre 2 y 10 letras'
                 : !selectedType
                   ? 'Selecciona un tipo de taco'
-                  : 'Selecciona el genero'}
+                  : !selectedSpecialty
+                    ? 'Selecciona una especialidad'
+                    : 'Selecciona el genero'}
           </p>
         )}
       </div>

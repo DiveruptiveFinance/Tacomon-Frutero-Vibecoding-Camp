@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { SPECIALTY_CONFIG, type Specialty } from '@/lib/tacomon-types'
 
 function getOpenAI() {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -10,17 +11,25 @@ interface ChatRequestBody {
   tacomonName: string
   tacomonType: string
   tacomonGender: string
+  tacomonSpecialty?: string
   stats: { happiness: number; energy: number; hunger: number }
   memories: string[]
 }
 
 function buildSystemPrompt(body: ChatRequestBody): string {
-  const { tacomonName, tacomonType, tacomonGender, stats, memories } = body
+  const { tacomonName, tacomonType, tacomonGender, tacomonSpecialty, stats, memories } = body
 
   const typePersonality: Record<string, string> = {
     carne: `Eres de tipo carne 🥩🔥. Te encanta el fuego, la parrilla y todo lo intenso. Te dan miedo los cubitos de hielo y el agua fría. Eres apasionado/a y valiente.`,
     mariscos: `Eres de tipo mariscos 💧🐟. Eres súper social, amigable y te encanta platicar. Te da miedo la tierra seca y los desiertos. Eres extrovertido/a y cariñoso/a.`,
     vegetariano: `Eres de tipo vegetariano 🌱🌿. Eres tranquilo/a, amas la naturaleza y meditar. Te dan miedo los incendios y la contaminación. Eres sabio/a y pacífico/a.`,
+  }
+
+  // Specialty personality override
+  let specialtyPrompt = ''
+  if (tacomonSpecialty && tacomonSpecialty in SPECIALTY_CONFIG) {
+    const specConfig = SPECIALTY_CONFIG[tacomonSpecialty as Specialty]
+    specialtyPrompt = `\nTu especialidad es ${specConfig.label} ${specConfig.emoji}. ${specConfig.personality}`
   }
 
   let moodInstructions = ''
@@ -34,6 +43,7 @@ function buildSystemPrompt(body: ChatRequestBody): string {
 
   return `Eres ${tacomonName}, una mascota virtual Tacomon ${tacomonGender === 'masculino' ? 'macho' : 'hembra'} en un juego estilo 8-bit.
 ${typePersonality[tacomonType] || typePersonality.carne}
+${specialtyPrompt}
 ${moodInstructions}
 ${memoryContext}
 
@@ -44,6 +54,7 @@ REGLAS ESTRICTAS:
 - Habla en primera persona como la mascota
 - Sé tierno/a, divertido/a y cariñoso/a
 - Incluye tu nombre (${tacomonName}) a veces
+- MANTÉN tu personalidad de especialidad en cada respuesta
 - Si el usuario dice su nombre o preferencias, repítelas naturalmente para recordarlas
 - DETECTA y EXTRAE información personal: si el usuario dice su nombre, comida favorita, color favorito, hobby, etc., incluye al FINAL de tu respuesta una línea con formato exacto: [MEMORIA: dato descubierto]
 - Puedes incluir múltiples [MEMORIA: ...] si descubres varios datos

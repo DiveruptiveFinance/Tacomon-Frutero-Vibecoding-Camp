@@ -52,6 +52,12 @@
   --gender-male-bg: #1a2a4a;
   --gender-female: #D94A8A;
   --gender-female-bg: #4a1a2a;
+
+  /* Taco accent colors */
+  --taco-pink: #FF69B4;
+  --taco-pink-bg: #fff0f5;
+  --taco-verde: #4CAF50;
+  --taco-amarillo: #FFD700;
 }
 
 .dark {
@@ -79,6 +85,11 @@
   --taco-blue-bg: #1b2a3a;
   --taco-red-bg: #3a1b1b;
   --taco-gold-bg: #3a3010;
+
+  --taco-pink: #FF69B4;
+  --taco-pink-bg: #3a1b2a;
+  --taco-verde: #4CAF50;
+  --taco-amarillo: #FFD700;
 }
 
 @theme inline {
@@ -455,4 +466,43 @@ button, .nes-btn, input, .type-card {
   0%, 20% { opacity: 0.2; }
   50% { opacity: 1; }
   100% { opacity: 0.2; }
+}
+
+/* Wood texture container */
+.wood-container {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(139, 90, 43, 0.06) 3px,
+      rgba(139, 90, 43, 0.06) 6px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 20px,
+      rgba(139, 90, 43, 0.04) 20px,
+      rgba(139, 90, 43, 0.04) 22px
+    ),
+    var(--card) !important;
+}
+
+.dark .wood-container {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(210, 160, 90, 0.08) 3px,
+      rgba(210, 160, 90, 0.08) 6px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 20px,
+      rgba(210, 160, 90, 0.05) 20px,
+      rgba(210, 160, 90, 0.05) 22px
+    ),
+    var(--card) !important;
 }

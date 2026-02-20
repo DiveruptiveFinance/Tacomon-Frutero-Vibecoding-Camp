@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
-import { TacomonData, TACO_CONFIG, COOLDOWN_MS } from '@/lib/tacomon-types'
+import { TacomonData, TACO_CONFIG, COOLDOWN_MS, SPECIALTY_CONFIG } from '@/lib/tacomon-types'
 import { getRandomQuestion } from '@/lib/quiz-data'
 import { StatBar } from './stat-bar'
 import { QuizModal } from './quiz-modal'
@@ -36,6 +36,7 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
 
   const { spawnHearts, HeartsLayer } = useFloatingHearts()
   const config = TACO_CONFIG[tacomon.type]
+  const specialtyConfig = tacomon.specialty ? SPECIALTY_CONFIG[tacomon.specialty] : null
 
   // Check cooldowns on mount and periodically
   useEffect(() => {
@@ -137,10 +138,10 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center px-4 py-4 md:py-8 gap-4 md:gap-6 max-w-lg mx-auto w-full">
-        {/* Tacomon Name & Info */}
-        <div className="text-center">
+      {/* Main Content - Responsive Grid */}
+      <div className="flex-1 px-4 py-4 md:py-8 max-w-5xl mx-auto w-full">
+        {/* Tacomon Name & Info - always on top */}
+        <div className="text-center mb-4">
           <h2 style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
             {tacomon.name}
           </h2>
@@ -153,117 +154,134 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               {tacomon.gender === 'masculino' ? '\u{2642}' : '\u{2640}'}
             </span>
           </div>
-        </div>
-
-        {/* Sprite Area */}
-        <div
-          className="pet-area relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center"
-          onClick={spawnHearts}
-          onTouchStart={spawnHearts}
-          role="button"
-          tabIndex={0}
-          aria-label={`Acariciar a ${tacomon.name}`}
-        >
-          <div className="animate-taco-idle">
-            <div className="relative w-32 h-32 md:w-48 md:h-48">
-              <Image
-                src={config.sprite}
-                alt={`Tacomon ${tacomon.name}`}
-                fill
-                className="pixel-sprite object-contain"
-                priority
-              />
+          {/* Specialty badge */}
+          {specialtyConfig && (
+            <div className="flex items-center justify-center gap-1 mt-1">
+              <span>{specialtyConfig.emoji}</span>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--taco-pink)' }}>
+                {specialtyConfig.label}
+              </span>
             </div>
-          </div>
-          <HeartsLayer />
+          )}
         </div>
 
-        {/* Stats */}
-        <div
-          className="nes-container is-rounded w-full"
-          style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
-        >
-          <div className="flex flex-col gap-3">
-            <StatBar
-              label="Felicidad"
-              emoji={'\u{1F49A}'}
-              value={tacomon.happiness}
-              maxValue={100}
-              color="var(--taco-green)"
-              bgColor="var(--taco-green-bg)"
-            />
-            <StatBar
-              label="Energia"
-              emoji={'\u{26A1}'}
-              value={tacomon.energy}
-              maxValue={100}
-              color="var(--taco-gold)"
-              bgColor="var(--taco-gold-bg)"
-            />
-            <StatBar
-              label="Hambre"
-              emoji={'\u{1F34E}'}
-              value={tacomon.hunger}
-              maxValue={100}
-              color="var(--taco-red)"
-              bgColor="var(--taco-red-bg)"
-            />
+        {/* Responsive 2-column grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          {/* LEFT COLUMN: Sprite + Stats + Actions */}
+          <div className="flex flex-col items-center gap-4">
+            {/* Sprite Area */}
+            <div
+              className="pet-area relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center"
+              onClick={spawnHearts}
+              onTouchStart={spawnHearts}
+              role="button"
+              tabIndex={0}
+              aria-label={`Acariciar a ${tacomon.name}`}
+            >
+              <div className="animate-taco-idle">
+                <div className="relative w-32 h-32 md:w-48 md:h-48">
+                  <Image
+                    src={config.sprite}
+                    alt={`Tacomon ${tacomon.name}`}
+                    fill
+                    className="pixel-sprite object-contain"
+                    priority
+                  />
+                </div>
+              </div>
+              <HeartsLayer />
+            </div>
+
+            {/* Stats */}
+            <div
+              className="nes-container is-rounded wood-container w-full"
+              style={{ backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
+            >
+              <div className="flex flex-col gap-3">
+                <StatBar
+                  label="Felicidad"
+                  emoji={'\u{1F49A}'}
+                  value={tacomon.happiness}
+                  maxValue={100}
+                  color="var(--taco-green)"
+                  bgColor="var(--taco-green-bg)"
+                />
+                <StatBar
+                  label="Energia"
+                  emoji={'\u{26A1}'}
+                  value={tacomon.energy}
+                  maxValue={100}
+                  color="var(--taco-gold)"
+                  bgColor="var(--taco-gold-bg)"
+                />
+                <StatBar
+                  label="Hambre"
+                  emoji={'\u{1F34E}'}
+                  value={tacomon.hunger}
+                  maxValue={100}
+                  color="var(--taco-red)"
+                  bgColor="var(--taco-red-bg)"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-3 gap-2 md:gap-3 w-full">
+              <button
+                onClick={() => handleAction('alimentar')}
+                disabled={cooldowns.alimentar}
+                className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'is-disabled' : 'is-error'}`}
+                style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
+              >
+                <span className="text-base md:text-lg">{'\u{1F34E}'}</span>
+                <span>{'Alimentar'}</span>
+              </button>
+
+              <button
+                onClick={() => handleAction('charlar')}
+                disabled={cooldowns.charlar}
+                className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.charlar ? 'is-disabled' : 'is-success'}`}
+                style={{ cursor: cooldowns.charlar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
+              >
+                <span className="text-base md:text-lg">{'\u{1F4AC}'}</span>
+                <span>{'Charlar'}</span>
+              </button>
+
+              <button
+                onClick={() => handleAction('jugar')}
+                disabled={cooldowns.jugar}
+                className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'is-disabled' : 'is-warning'}`}
+                style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
+              >
+                <span className="text-base md:text-lg">{'\u{26A1}'}</span>
+                <span>{'Jugar'}</span>
+              </button>
+            </div>
+
+            {/* Cooldown Timer */}
+            {(cooldowns.alimentar || cooldowns.charlar || cooldowns.jugar) && (
+              <div className="cooldown-timer text-center w-full">
+                <span>{'⏰ '}</span>
+                {cooldowns.alimentar && <span>{'🍎 '}{formatTime(timeLeft.alimentar)}{' '}</span>}
+                {cooldowns.charlar && <span>{'💬 '}{formatTime(timeLeft.charlar)}{' '}</span>}
+                {cooldowns.jugar && <span>{'⚡ '}{formatTime(timeLeft.jugar)}</span>}
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT COLUMN: Chat */}
+          <div className="flex flex-col gap-4">
+            <ChatSection tacomon={tacomon} onUpdateStats={onUpdateStats} />
+
+            {/* Footer info */}
+            <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+              {'Toca a tu Tacomon para acariciarlo!'}
+            </p>
+            <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+              {'Creado el: '}{new Date(tacomon.createdAt).toLocaleDateString('es-MX')}
+            </p>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-2 md:gap-3 w-full">
-          <button
-            onClick={() => handleAction('alimentar')}
-            disabled={cooldowns.alimentar}
-            className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar ? 'is-disabled' : 'is-error'}`}
-            style={{ cursor: cooldowns.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
-          >
-            <span className="text-base md:text-lg">{'\u{1F34E}'}</span>
-            <span>{'Alimentar'}</span>
-          </button>
-
-          <button
-            onClick={() => handleAction('charlar')}
-            disabled={cooldowns.charlar}
-            className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.charlar ? 'is-disabled' : 'is-success'}`}
-            style={{ cursor: cooldowns.charlar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
-          >
-            <span className="text-base md:text-lg">{'\u{1F4AC}'}</span>
-            <span>{'Charlar'}</span>
-          </button>
-
-          <button
-            onClick={() => handleAction('jugar')}
-            disabled={cooldowns.jugar}
-            className={`nes-btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar ? 'is-disabled' : 'is-warning'}`}
-            style={{ cursor: cooldowns.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)' }}
-          >
-            <span className="text-base md:text-lg">{'\u{26A1}'}</span>
-            <span>{'Jugar'}</span>
-          </button>
-        </div>
-
-        {/* Cooldown Timer - below buttons */}
-        {(cooldowns.alimentar || cooldowns.charlar || cooldowns.jugar) && (
-          <div className="cooldown-timer text-center w-full">
-            <span>{'⏰ '}</span>
-            {cooldowns.alimentar && <span>{'🍎 '}{formatTime(timeLeft.alimentar)}{' '}</span>}
-            {cooldowns.charlar && <span>{'💬 '}{formatTime(timeLeft.charlar)}{' '}</span>}
-            {cooldowns.jugar && <span>{'⚡ '}{formatTime(timeLeft.jugar)}</span>}
-          </div>
-        )}
-
-        {/* Chat Section */}
-        <ChatSection tacomon={tacomon} onUpdateStats={onUpdateStats} />
-
-        {/* Footer info */}
-        <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-          {'Toca a tu Tacomon para acariciarlo!'}
-        </p>
-        <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-          {'Creado el: '}{new Date(tacomon.createdAt).toLocaleDateString('es-MX')}
-        </p>
       </div>
 
       {/* Quiz Modal */}
