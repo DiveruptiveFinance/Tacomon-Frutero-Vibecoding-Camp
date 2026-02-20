@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { TacomonData, TACO_CONFIG, COOLDOWN_MS, SPECIALTY_CONFIG } from '@/lib/tacomon-types'
 import { getRandomQuestion } from '@/lib/quiz-data'
@@ -10,9 +10,146 @@ import { ThemeToggle } from './theme-toggle'
 import { useFloatingHearts } from './floating-hearts'
 import { ChatSection } from './chat-section'
 import { useSalsa } from '@/hooks/use-salsa'
+import type { SalsaHistoryEntry } from '@/hooks/use-salsa'
 import { usePrivy } from '@privy-io/react-auth'
 import type { QuizQuestion } from '@/lib/tacomon-types'
 
+/* ── Floating salsa text component ── */
+interface FloatingSalsa {
+  id: number
+  text: string
+  color: string
+  x: number
+}
+
+function useSalsaFloats() {
+  const [floats, setFloats] = useState<FloatingSalsa[]>([])
+  const idRef = useRef(0)
+
+  const spawn = useCallback((text: string, color: string) => {
+    const id = ++idRef.current
+    const x = 20 + Math.random() * 60
+    setFloats(prev => [...prev, { id, text, color, x }])
+    setTimeout(() => setFloats(prev => prev.filter(f => f.id !== id)), 1800)
+  }, [])
+
+  const Layer = () => (
+    <>
+      {floats.map(f => (
+        <div
+          key={f.id}
+          className="fixed pointer-events-none animate-salsa-float z-[100]"
+          style={{
+            left: `${f.x}%`,
+            top: '40%',
+            color: f.color,
+            fontSize: 'var(--text-sm)',
+            fontWeight: 700,
+            textShadow: '1px 1px 0 #000',
+          }}
+        >
+          {f.text}
+        </div>
+      ))}
+    </>
+  )
+
+  return { spawn, Layer }
+}
+
+/* ── Processing overlay ── */
+function ProcessingOverlay({ state }: { state: 'idle' | 'processing' | 'done' }) {
+  if (state === 'idle') return null
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center pointer-events-none">
+      <div
+        className="nes-container is-rounded animate-slide-up"
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          color: state === 'done' ? '#4caf50' : '#f9a825',
+          padding: '16px 28px',
+          fontSize: 'var(--text-sm)',
+          pointerEvents: 'auto',
+        }}
+      >
+        {state === 'processing' ? '⏳ Procesando…' : '✅ ¡Listo!'}
+      </div>
+    </div>
+  )
+}
+
+/* ── Historial panel ── */
+function HistorialPanel({ history }: { history: SalsaHistoryEntry[] }) {
+  const [open, setOpen] = useState(false)
+  const last10 = history.slice(-10).reverse()
+
+  return (
+    <div className="w-full">
+      <button
+        onClick={() => setOpen(!open)}
+        className="nes-btn is-warning w-full"
+        style={{ fontSize: 'var(--text-xs)', padding: '6px 12px' }}
+      >
+        📜 {open ? 'Cerrar Historial' : 'Historial'}
+      </button>
+      {open && (
+        <div
+          className="nes-container is-dark with-title mt-2 animate-slide-up"
+          style={{ fontSize: 'var(--text-xs)', maxHeight: '200px', overflowY: 'auto' }}
+        >
+          <p className="title" style={{ fontSize: 'var(--text-xs)' }}>Últimos movimientos</p>
+          {last10.length === 0 ? (
+            <p style={{ color: 'var(--muted-foreground)' }}>Sin movimientos aún</p>
+          ) : (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {last10.map((entry, i) => {
+                const time = new Date(entry.timestamp).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+                const sign = entry.type === 'earn' ? '+' : '-'
+                const color = entry.type === 'earn' ? '#4caf50' : '#e8762e'
+                return (
+                  <li key={i} style={{ padding: '4px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    <span style={{ color }}>{sign}{entry.amount} 🍅</span>
+                    {' '}
+                    <span style={{ color: '#b8a080' }}>{entry.reason}</span>
+                    {' '}
+                    <span style={{ color: '#7a6140', float: 'right' }}>{time}</span>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Insufficient funds tooltip ── */
+function InsufficientTooltip({ show }: { show: boolean }) {
+  if (!show) return null
+  return (
+    <div
+      className="nes-balloon from-left animate-slide-up"
+      style={{
+        fontSize: 'var(--text-xs)',
+        position: 'absolute',
+        bottom: '110%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 60,
+        whiteSpace: 'nowrap',
+        backgroundColor: '#2d1b00',
+        color: '#fdf6e3',
+        padding: '8px 14px',
+        border: '2px solid #e8762e',
+      }}
+    >
+      Necesitas 10 🍅. Habla conmigo para ganar más
+    </div>
+  )
+}
+
+/* ── Main Screen ── */
 interface MainScreenProps {
   tacomon: TacomonData
   onUpdateStats: (stat: 'happiness' | 'energy' | 'hunger', amount: number) => void
@@ -25,66 +162,53 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
     question: QuizQuestion
     actionType: 'alimentar' | 'charlar' | 'jugar'
   } | null>(null)
-  const [cooldowns, setCooldowns] = useState({
-    alimentar: false,
-    charlar: false,
-    jugar: false,
-  })
-  const [timeLeft, setTimeLeft] = useState({
-    alimentar: 0,
-    charlar: 0,
-    jugar: 0,
-  })
-  const [actionBlocked, setActionBlocked] = useState<{ alimentar: boolean; jugar: boolean }>({
-    alimentar: false,
-    jugar: false,
-  })
+  const [cooldowns, setCooldowns] = useState({ alimentar: false, charlar: false, jugar: false })
+  const [timeLeft, setTimeLeft] = useState({ alimentar: 0, charlar: 0, jugar: 0 })
+  const [actionBlocked, setActionBlocked] = useState({ alimentar: false, jugar: false })
+  const [processState, setProcessState] = useState<'idle' | 'processing' | 'done'>('idle')
+  const [showInsufficientTip, setShowInsufficientTip] = useState(false)
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null)
 
   const { spawnHearts, HeartsLayer } = useFloatingHearts()
-  const { balance, deductSalsa } = useSalsa()
+  const { spawn: spawnSalsa, Layer: SalsaLayer } = useSalsaFloats()
+  const { balance, streak, history, deductSalsa } = useSalsa()
   const { login, logout, authenticated, user } = usePrivy()
   const config = TACO_CONFIG[tacomon.type]
   const specialtyConfig = tacomon.specialty ? SPECIALTY_CONFIG[tacomon.specialty] : null
 
+  // Cooldown check
   useEffect(() => {
-    const checkCooldowns = () => {
+    const check = () => {
       const now = Date.now()
-
       const actions: Array<{ key: 'alimentar' | 'charlar' | 'jugar'; lastAction: string | null }> = [
         { key: 'alimentar', lastAction: tacomon.lastFed },
         { key: 'charlar', lastAction: tacomon.lastChatted },
         { key: 'jugar', lastAction: tacomon.lastPlayed },
       ]
-
-      const newCooldowns: typeof cooldowns = { alimentar: false, charlar: false, jugar: false }
-      const newTimeLeft: typeof timeLeft = { alimentar: 0, charlar: 0, jugar: 0 }
-
+      const nc = { alimentar: false, charlar: false, jugar: false }
+      const nt = { alimentar: 0, charlar: 0, jugar: 0 }
       actions.forEach(({ key, lastAction }) => {
         if (lastAction) {
           const elapsed = now - new Date(lastAction).getTime()
           if (elapsed < COOLDOWN_MS) {
-            newCooldowns[key] = true
-            newTimeLeft[key] = Math.ceil((COOLDOWN_MS - elapsed) / 1000)
+            nc[key] = true
+            nt[key] = Math.ceil((COOLDOWN_MS - elapsed) / 1000)
           }
         }
       })
-
-      setCooldowns(newCooldowns)
-      setTimeLeft(newTimeLeft)
+      setCooldowns(nc)
+      setTimeLeft(nt)
     }
-
-    checkCooldowns()
-    const interval = setInterval(checkCooldowns, 1000)
-    return () => clearInterval(interval)
+    check()
+    const iv = setInterval(check, 1000)
+    return () => clearInterval(iv)
   }, [tacomon.lastFed, tacomon.lastChatted, tacomon.lastPlayed])
 
   const handleAction = useCallback((actionType: 'alimentar' | 'jugar') => {
-    if (cooldowns[actionType]) return
-    if (actionBlocked[actionType]) return
+    if (cooldowns[actionType] || actionBlocked[actionType]) return
     if (balance < 10) {
-      setFeedbackMsg('❌ No tienes suficiente $SALSA (mínimo 10 🍅)')
-      setTimeout(() => setFeedbackMsg(null), 3000)
+      setShowInsufficientTip(true)
+      setTimeout(() => setShowInsufficientTip(false), 3000)
       return
     }
     const question = getRandomQuestion(actionType)
@@ -95,140 +219,119 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
     if (!activeQuiz) return
     const { actionType } = activeQuiz
 
+    // Show processing
+    setProcessState('processing')
+
     if (correct) {
-      deductSalsa(10)
-      const statMap = {
-        alimentar: 'hunger' as const,
-        jugar: 'energy' as const,
-        charlar: 'happiness' as const,
-      }
-      const amount = 15
-      const msgs = {
-        alimentar: '¡Qué rico taco! Gracias por la salsa 😋',
-        jugar: '¡Gran jugada! Tu Tacomon está feliz ⚡😋',
-        charlar: '¡Buena charla!',
-      }
       setTimeout(() => {
-        onUpdateStats(statMap[actionType], amount)
+        deductSalsa(10, actionType === 'alimentar' ? 'Alimentar Tacomon' : 'Jugar con Tacomon')
+        spawnSalsa('-10 🍅', '#e8762e')
+
+        const statMap = { alimentar: 'hunger' as const, jugar: 'energy' as const, charlar: 'happiness' as const }
+        onUpdateStats(statMap[actionType], 15)
+
+        const msgs = {
+          alimentar: '¡Qué rico taco! Gracias por la salsa 😋',
+          jugar: '¡Gran jugada! Tu Tacomon está feliz ⚡😋',
+          charlar: '¡Buena charla!',
+        }
         setFeedbackMsg(msgs[actionType])
-        setTimeout(() => setFeedbackMsg(null), 3000)
-        setActiveQuiz(null)
-      }, 500)
-    } else {
-      // Block action for 30 seconds
-      setFeedbackMsg('❌ ¡Error! Intenta más tarde')
-      setTimeout(() => setFeedbackMsg(null), 3000)
-      if (actionType === 'alimentar' || actionType === 'jugar') {
-        setActionBlocked(prev => ({ ...prev, [actionType]: true }))
+        setProcessState('done')
+
         setTimeout(() => {
-          setActionBlocked(prev => ({ ...prev, [actionType]: false }))
-        }, 30000)
-      }
+          setProcessState('idle')
+          setFeedbackMsg(null)
+          setActiveQuiz(null)
+        }, 2000)
+      }, 800)
+    } else {
       setTimeout(() => {
-        setActiveQuiz(null)
-      }, 500)
+        setFeedbackMsg('❌ ¡Error! Intenta más tarde')
+        setProcessState('idle')
+        if (actionType === 'alimentar' || actionType === 'jugar') {
+          setActionBlocked(prev => ({ ...prev, [actionType]: true }))
+          setTimeout(() => setActionBlocked(prev => ({ ...prev, [actionType]: false })), 30000)
+        }
+        setTimeout(() => { setFeedbackMsg(null); setActiveQuiz(null) }, 2000)
+      }, 800)
     }
-  }, [activeQuiz, onUpdateStats, deductSalsa])
+  }, [activeQuiz, onUpdateStats, deductSalsa, spawnSalsa])
 
-  const handleReset = useCallback(() => {
-    setShowResetConfirm(true)
-  }, [])
+  const handleReset = useCallback(() => setShowResetConfirm(true), [])
+  const confirmReset = useCallback(() => { setShowResetConfirm(false); onReset() }, [onReset])
 
-  const confirmReset = useCallback(() => {
-    setShowResetConfirm(false)
-    onReset()
-  }, [onReset])
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
 
   return (
-    <main className="min-h-screen flex flex-col" style={{ backgroundColor: config.bgColor }}>
-      {/* Header */}
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
+      <SalsaLayer />
+      <ProcessingOverlay state={processState} />
+
+      {/* ── Fixed Header ── */}
       <header
-        className="flex items-center justify-between px-4 md:px-6 py-3 flex-wrap gap-2"
+        className="sticky top-0 z-50 flex items-center justify-between px-3 md:px-6 py-2 flex-wrap gap-2"
         style={{
           backgroundColor: 'var(--card)',
-          borderBottom: '1px solid var(--border)',
-          borderRadius: '0 0 16px 16px',
+          borderBottom: '4px solid var(--border)',
+          imageRendering: 'pixelated',
         }}
       >
-        <h1 style={{ fontSize: 'var(--text-base)', color: 'var(--foreground)' }}>
-          {'\u{1F32E} Tacomon'}
-        </h1>
+        <h1 style={{ fontSize: 'var(--text-base)', color: 'var(--foreground)' }}>🌮 Tacomon</h1>
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Salsa Balance */}
-          <span
-            className="nes-badge"
-            style={{ fontSize: 'var(--text-xs)', whiteSpace: 'nowrap' }}
+          {/* Salsa counter */}
+          <div
+            className="nes-container is-rounded is-dark"
+            style={{ padding: '4px 10px', fontSize: 'var(--text-xs)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            <span className="is-warning">🍅 {balance} $SALSA</span>
-          </span>
+            <span>🍅</span>
+            <span style={{ color: '#f9a825' }}>{balance}</span>
+            <span style={{ color: '#b8a080' }}>$SALSA</span>
+            {streak > 0 && <span style={{ color: '#e8762e' }}>🔥{streak}</span>}
+          </div>
           {/* Auth */}
           {authenticated && user ? (
             <div className="flex items-center gap-2">
               <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
                 {user.email?.address || user.google?.email || user.id.slice(0, 10)}
               </span>
-              <button
-                onClick={logout}
-                className="nes-btn is-error"
-                style={{ fontSize: 'var(--text-xs)', padding: '4px 8px' }}
-              >
+              <button onClick={logout} className="nes-btn is-error" style={{ fontSize: '10px', padding: '2px 8px' }}>
                 Cerrar Sesión
               </button>
             </div>
           ) : (
-            <button
-              onClick={login}
-              className="nes-btn is-primary"
-              style={{ fontSize: 'var(--text-xs)', padding: '4px 8px' }}
-            >
+            <button onClick={login} className="nes-btn is-primary" style={{ fontSize: '10px', padding: '2px 8px' }}>
               Iniciar Sesión
             </button>
           )}
           <ThemeToggle />
-          <button
-            onClick={handleReset}
-            className="btn btn-ghost"
-            style={{ fontSize: 'var(--text-xs)' }}
-          >
-            {'Reiniciar'}
+          <button onClick={handleReset} className="nes-btn" style={{ fontSize: '10px', padding: '2px 8px' }}>
+            Reiniciar
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 px-4 py-4 md:py-8 max-w-5xl mx-auto w-full">
-        {/* Tacomon Name & Info */}
+      {/* ── Main Content ── */}
+      <div className="flex-1 px-3 py-4 md:py-6 max-w-5xl mx-auto w-full">
+        {/* Name */}
         <div className="text-center mb-4">
-          <h2 style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>
-            {tacomon.name}
-          </h2>
+          <h2 style={{ fontSize: 'var(--text-lg)', color: 'var(--foreground)' }}>{tacomon.name}</h2>
           <div className="flex items-center justify-center gap-2 mt-1">
             <span className="text-sm">{config.emoji}</span>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-              {config.label}
-            </span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>{config.label}</span>
           </div>
           {specialtyConfig && (
             <div className="flex items-center justify-center gap-1 mt-1">
               <span>{specialtyConfig.emoji}</span>
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--taco-pink)' }}>
-                {specialtyConfig.label}
-              </span>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--taco-pink)' }}>{specialtyConfig.label}</span>
             </div>
           )}
         </div>
 
-        {/* Responsive 2-column grid */}
+        {/* 2-column layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {/* LEFT COLUMN: Sprite + Stats + Actions */}
+          {/* LEFT: Sprite + Stats + Actions */}
           <div className="flex flex-col items-center gap-4">
-            {/* Sprite Area */}
+            {/* Sprite */}
             <div
               className="pet-area relative flex items-center justify-center"
               onClick={spawnHearts}
@@ -237,118 +340,97 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
               tabIndex={0}
               aria-label={`Acariciar a ${tacomon.name}`}
             >
-              {specialtyConfig?.sprite ? (
-                <div className="relative w-32 h-32 md:w-48 md:h-48">
-                  <Image
-                    src={specialtyConfig.sprite}
-                    alt={`Tacomon ${tacomon.name}`}
-                    fill
-                    className="object-contain animate-taco-idle"
-                    priority
-                  />
-                </div>
-              ) : (
-                <div className="relative w-32 h-32 md:w-48 md:h-48">
-                  <Image
-                    src={config.sprite}
-                    alt={`Tacomon ${tacomon.name}`}
-                    fill
-                    className="object-contain animate-taco-idle"
-                    priority
-                  />
-                </div>
-              )}
+              <div className="relative w-32 h-32 md:w-48 md:h-48">
+                <Image
+                  src={specialtyConfig?.sprite || config.sprite}
+                  alt={`Tacomon ${tacomon.name}`}
+                  fill
+                  className="object-contain animate-taco-idle pixel-sprite"
+                  priority
+                />
+              </div>
               <HeartsLayer />
             </div>
 
             {/* Stats */}
-            <div className="modern-card w-full">
+            <div className="nes-container is-rounded w-full" style={{ padding: '12px' }}>
               <div className="flex flex-col gap-3">
-                <StatBar
-                  label="Felicidad"
-                  emoji={'\u{1F49A}'}
-                  value={tacomon.happiness}
-                  maxValue={100}
-                  color="var(--taco-green)"
-                  bgColor="var(--taco-green-bg)"
-                />
-                <StatBar
-                  label="Energia"
-                  emoji={'\u{26A1}'}
-                  value={tacomon.energy}
-                  maxValue={100}
-                  color="var(--taco-gold)"
-                  bgColor="var(--taco-gold-bg)"
-                />
-                <StatBar
-                  label="Hambre"
-                  emoji={'\u{1F34E}'}
-                  value={tacomon.hunger}
-                  maxValue={100}
-                  color="var(--taco-red)"
-                  bgColor="var(--taco-red-bg)"
-                />
+                <StatBar label="Felicidad" emoji="💚" value={tacomon.happiness} maxValue={100} color="var(--taco-green)" bgColor="var(--taco-green-bg)" />
+                <StatBar label="Energía" emoji="⚡" value={tacomon.energy} maxValue={100} color="var(--taco-gold)" bgColor="var(--taco-gold-bg)" />
+                <StatBar label="Hambre" emoji="🍎" value={tacomon.hunger} maxValue={100} color="var(--taco-red)" bgColor="var(--taco-red-bg)" />
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2 md:gap-3 w-full">
+            {/* Action buttons */}
+            <div className="grid grid-cols-2 gap-2 w-full relative">
+              <InsufficientTooltip show={showInsufficientTip} />
               <button
                 onClick={() => handleAction('alimentar')}
                 disabled={cooldowns.alimentar || actionBlocked.alimentar}
-                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.alimentar || actionBlocked.alimentar ? 'btn-disabled' : 'btn-danger'}`}
-                style={{ cursor: cooldowns.alimentar || actionBlocked.alimentar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-red)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
+                className={`nes-btn ${cooldowns.alimentar || actionBlocked.alimentar ? 'is-disabled' : 'is-error'}`}
+                style={{ fontSize: 'var(--text-xs)', padding: '10px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
               >
-                <span className="text-base md:text-lg">{'\u{1F34E}'}</span>
-                <span>{'Alimentar (10 🍅)'}</span>
+                <span style={{ fontSize: '1.2em' }}>🍎</span>
+                <span>Alimentar</span>
+                <span style={{ fontSize: '0.8em', opacity: 0.7 }}>(10 🍅)</span>
               </button>
-
               <button
                 onClick={() => handleAction('jugar')}
                 disabled={cooldowns.jugar || actionBlocked.jugar}
-                className={`btn py-2 md:py-3 flex flex-col items-center gap-1 ${cooldowns.jugar || actionBlocked.jugar ? 'btn-disabled' : 'btn-warning'}`}
-                style={{ cursor: cooldowns.jugar || actionBlocked.jugar ? 'not-allowed' : 'pointer', fontSize: 'var(--text-xs)', border: '2px solid var(--taco-gold)', boxShadow: '2px 2px 0px rgba(0,0,0,0.2)' }}
+                className={`nes-btn ${cooldowns.jugar || actionBlocked.jugar ? 'is-disabled' : 'is-warning'}`}
+                style={{ fontSize: 'var(--text-xs)', padding: '10px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
               >
-                <span className="text-base md:text-lg">{'\u{26A1}'}</span>
-                <span>{'Jugar (10 🍅)'}</span>
+                <span style={{ fontSize: '1.2em' }}>⚡</span>
+                <span>Jugar</span>
+                <span style={{ fontSize: '0.8em', opacity: 0.7 }}>(10 🍅)</span>
               </button>
             </div>
 
-            {/* Feedback Message */}
+            {/* Feedback */}
             {feedbackMsg && (
               <div
-                className="text-center w-full animate-slide-up"
+                className="nes-container is-rounded animate-slide-up w-full text-center"
                 style={{
                   fontSize: 'var(--text-xs)',
-                  color: feedbackMsg.startsWith('❌') ? 'var(--taco-red)' : 'var(--taco-green)',
-                  padding: '8px',
+                  color: feedbackMsg.startsWith('❌') ? '#e53935' : '#4caf50',
                   backgroundColor: feedbackMsg.startsWith('❌') ? 'var(--taco-red-bg)' : 'var(--taco-green-bg)',
-                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  border: `2px solid ${feedbackMsg.startsWith('❌') ? '#e53935' : '#4caf50'}`,
                 }}
               >
                 {feedbackMsg}
               </div>
             )}
 
-            {/* Cooldown Timer */}
+            {/* Cooldown */}
             {(cooldowns.alimentar || cooldowns.jugar) && (
               <div className="cooldown-timer text-center w-full">
-                <span>{'⏰ '}</span>
-                {cooldowns.alimentar && <span>{'🍎 '}{formatTime(timeLeft.alimentar)}{' '}</span>}
-                {cooldowns.jugar && <span>{'⚡ '}{formatTime(timeLeft.jugar)}</span>}
+                <span>⏰ </span>
+                {cooldowns.alimentar && <span>🍎 {formatTime(timeLeft.alimentar)} </span>}
+                {cooldowns.jugar && <span>⚡ {formatTime(timeLeft.jugar)}</span>}
+              </div>
+            )}
+
+            {/* Action blocked timer */}
+            {(actionBlocked.alimentar || actionBlocked.jugar) && (
+              <div style={{ fontSize: 'var(--text-xs)', color: '#e53935', textAlign: 'center' }}>
+                🚫 Acción bloqueada por error en quiz (30s)
               </div>
             )}
           </div>
 
-          {/* RIGHT COLUMN: Chat */}
+          {/* RIGHT: Chat + History */}
           <div className="flex flex-col gap-4">
             <ChatSection tacomon={tacomon} onUpdateStats={onUpdateStats} />
 
+            {/* Historial */}
+            <HistorialPanel history={history} />
+
             <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-              {'Toca a tu Tacomon para acariciarlo!'}
+              Toca a tu Tacomon para acariciarlo!
             </p>
             <p className="text-center" style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-              {'Creado el: '}{new Date(tacomon.createdAt).toLocaleDateString('es-MX')}
+              Creado el: {new Date(tacomon.createdAt).toLocaleDateString('es-MX')}
             </p>
           </div>
         </div>
@@ -366,38 +448,19 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
 
       {/* Reset Confirmation */}
       {showResetConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <div
-            className="modern-card max-w-sm w-full animate-slide-up"
-          >
-            <div className="text-center mb-4">
-              <span className="text-2xl">{'\u{26A0}\u{FE0F}'}</span>
-              <h3 className="mt-2" style={{ fontSize: 'var(--text-sm)', color: 'var(--destructive)' }}>
-                {'Cuidado!'}
-              </h3>
-            </div>
-            <p className="leading-relaxed text-center mb-4" style={{ fontSize: 'var(--text-xs)' }}>
-              {'Estas seguro de que quieres reiniciar? Perderas a '}
-              <span style={{ color: config.color }}>{tacomon.name}</span>
-              {' y todo su progreso para siempre.'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+          <div className="nes-container is-rounded is-dark max-w-sm w-full animate-slide-up" style={{ textAlign: 'center' }}>
+            <span className="text-2xl">⚠️</span>
+            <h3 className="mt-2" style={{ fontSize: 'var(--text-sm)', color: '#e53935' }}>¡Cuidado!</h3>
+            <p className="leading-relaxed my-4" style={{ fontSize: 'var(--text-xs)' }}>
+              ¿Estás seguro? Perderás a <span style={{ color: config.color }}>{tacomon.name}</span> y todo su progreso.
             </p>
             <div className="flex gap-2">
-              <button
-                onClick={() => setShowResetConfirm(false)}
-                className="btn btn-ghost flex-1"
-                style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
-              >
-                {'Cancelar'}
+              <button onClick={() => setShowResetConfirm(false)} className="nes-btn flex-1" style={{ fontSize: 'var(--text-xs)' }}>
+                Cancelar
               </button>
-              <button
-                onClick={confirmReset}
-                className="btn btn-danger flex-1"
-                style={{ cursor: 'pointer', fontSize: 'var(--text-xs)' }}
-              >
-                {'Si, reiniciar'}
+              <button onClick={confirmReset} className="nes-btn is-error flex-1" style={{ fontSize: 'var(--text-xs)' }}>
+                Sí, reiniciar
               </button>
             </div>
           </div>

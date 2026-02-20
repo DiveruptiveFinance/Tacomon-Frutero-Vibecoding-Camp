@@ -92,7 +92,7 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
     // Earn $SALSA from chatting
     const earned = earnFromChat()
     if (earned > 0) {
-      setTimeout(() => addFloatingText(`+${earned} 🍅 $SALSA`), 150)
+      setTimeout(() => addFloatingText(`+${earned} 🍅`), 150)
     }
     
     setTimeout(() => {
@@ -173,8 +173,10 @@ export function ChatSection({ tacomon, onUpdateStats }: ChatSectionProps) {
             left: `${ft.x}%`,
             top: '-10px',
             fontSize: 'var(--text-sm)',
-            fontWeight: 600,
+            fontWeight: 700,
             zIndex: 50,
+            color: ft.text.includes('🍅') ? '#4caf50' : ft.text.startsWith('-') ? '#e8762e' : 'var(--foreground)',
+            textShadow: '1px 1px 0 rgba(0,0,0,0.5)',
           }}
         >
           {ft.text}

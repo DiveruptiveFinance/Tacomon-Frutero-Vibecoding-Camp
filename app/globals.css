@@ -343,6 +343,13 @@
 .animate-float-hearts { animation: float-hearts 1.5s ease-out forwards; }
 .animate-bounce-in { animation: bounce-in 0.4s ease-out; }
 .animate-float-up { animation: float-up 1.5s ease-out forwards; }
+.animate-salsa-float { animation: salsa-float 1.8s ease-out forwards; }
+
+@keyframes salsa-float {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  60% { opacity: 1; transform: translateY(-60px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-100px) scale(0.8); }
+}
 
 /* ========== Interactive Elements ========== */
 
