@@ -315,6 +315,9 @@ export function MainScreen({ tacomon, onUpdateStats, onReset }: MainScreenProps)
             </button>
           )}
           <ThemeToggle />
+          <a href="/tacodex" className="nes-btn is-warning" style={{ fontSize: '10px', padding: '2px 8px', textDecoration: 'none' }}>
+            🌮 Tacodex
+          </a>
           <button onClick={handleReset} className="nes-btn" style={{ fontSize: '10px', padding: '2px 8px' }}>
             Reiniciar
           </button>

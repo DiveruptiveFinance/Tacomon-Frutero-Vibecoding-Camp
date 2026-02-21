@@ -227,7 +227,7 @@ export function RegisterHub({ onBack }: RegisterHubProps) {
         )}
 
         {/* Action buttons */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button
             onClick={() => router.push('/leaderboard')}
             className="nes-btn is-primary"
@@ -257,6 +257,21 @@ export function RegisterHub({ onBack }: RegisterHubProps) {
           >
             <span style={{ fontSize: '1.2em' }}>👤</span>
             <span>Mi Perfil</span>
+          </button>
+          <button
+            onClick={() => router.push('/tacodex')}
+            className="nes-btn is-warning"
+            style={{
+              fontSize: 'var(--text-xs)',
+              padding: '10px 6px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <span style={{ fontSize: '1.2em' }}>🌮</span>
+            <span>Tacodex</span>
           </button>
         </div>
 
