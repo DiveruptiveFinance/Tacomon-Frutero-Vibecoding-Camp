@@ -9,14 +9,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmkyyrsbj04bck40bidlscndo'}
       config={{
-        loginMethods: ['google', 'email'],
+        loginMethods: ['wallet', 'google', 'email'],
         appearance: {
           theme: 'light',
           accentColor: '#d4520a',
           logo: '/icon.svg',
+          walletList: ['metamask', 'rainbow', 'coinbase_wallet', 'wallet_connect'],
         },
         embeddedWallets: {
-          createOnLogin: 'off',
+          createOnLogin: 'users-without-wallets',
         },
       }}
     >
